@@ -1,0 +1,50 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: homehub
+      POSTGRES_USER: homehub
+      POSTGRES_PASSWORD: homehub_dev
+    volumes:
+      - homehub-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U homehub -d homehub"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  household-service:
+    build: ./services/household-service
+    environment:
+      DATABASE_URL: postgresql+psycopg://homehub:homehub_dev@postgres:5432/homehub
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  task-service:
+    build: ./services/task-service
+    environment:
+      DATABASE_URL: postgresql+psycopg://homehub:homehub_dev@postgres:5432/homehub
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  device-service:
+    build: ./services/device-service
+    environment:
+      DATABASE_URL: postgresql+psycopg://homehub:homehub_dev@postgres:5432/homehub
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - household-service
+      - task-service
+      - device-service
+
+volumes:
+  homehub-data:
