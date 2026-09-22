@@ -4,15 +4,7 @@ metadata:
   name: homehub-config
   namespace: homehub
 data:
-  POSTGRES_DB: homehub
-  POSTGRES_USER: homehub
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: homehub-secrets
-  namespace: homehub
-type: Opaque
-stringData:
-  POSTGRES_PASSWORD: homehub_dev
-  DATABASE_URL: postgresql+psycopg://homehub:homehub_dev@postgres:5432/homehub
+  PGHOST: homehub-db-rw
+  PGPORT: '5432'
+  PGSSLMODE: verify-full
+  PGSSLROOTCERT: /etc/db-ca/ca.crt

@@ -1,0 +1,19 @@
+{
+  "result": "passed",
+  "context": "orbstack",
+  "signals": 45,
+  "peak_worker_replicas": 4,
+  "final_worker_replicas": 0,
+  "worker_image_ids": [
+    "docker-pullable://kar1n1911/homehub-alertmanager@sha256:9ac5d03e471820a42c10b4f5935c1ab2c7fd545cf71c2cd63e033e1cebcb3c9f"
+  ],
+  "all_test_ids_received": true,
+  "checks": [
+    "zero-to-many activation",
+    "receiver outage persistence",
+    "worker pod replacement",
+    "all messages recovered",
+    "receiver unique IDs",
+    "idle scale-to-zero"
+  ]
+}

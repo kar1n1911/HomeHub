@@ -4,9 +4,14 @@ resources:
   - namespace.yaml
   - config/app-config.yaml
   - postgres/postgres.yaml
+  - postgres/databases.yaml
   - household-service/deployment.yaml
   - task-service/deployment.yaml
   - device-service/deployment.yaml
   - frontend/deployment.yaml
   - config/hpa.yaml
 
+  - alertmanager/deployment.yaml
+  - signal-worker/deployment.yaml
+  - signal-receiver/deployment.yaml
+  - config/signal-scaling.yaml

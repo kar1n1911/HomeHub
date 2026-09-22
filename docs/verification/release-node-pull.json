@@ -1,0 +1,120 @@
+{
+  "checked_at": "2026-09-22T05:21:11.909592+00:00",
+  "context": "orbstack",
+  "image_pull_policy": "Always",
+  "pods": [
+    {
+      "pod": "alertmanager-554f787857-mbcnd",
+      "deployment": "alertmanager",
+      "image": "kar1n1911/homehub-alertmanager:0.2.0",
+      "image_id": "docker-pullable://kar1n1911/homehub-alertmanager@sha256:9ac5d03e471820a42c10b4f5935c1ab2c7fd545cf71c2cd63e033e1cebcb3c9f",
+      "ready": true
+    },
+    {
+      "pod": "alertmanager-554f787857-rfdbk",
+      "deployment": "alertmanager",
+      "image": "kar1n1911/homehub-alertmanager:0.2.0",
+      "image_id": "docker-pullable://kar1n1911/homehub-alertmanager@sha256:9ac5d03e471820a42c10b4f5935c1ab2c7fd545cf71c2cd63e033e1cebcb3c9f",
+      "ready": true
+    },
+    {
+      "pod": "device-service-6b747f5675-f5d47",
+      "deployment": "device-service",
+      "image": "kar1n1911/homehub-device:0.2.0",
+      "image_id": "docker-pullable://kar1n1911/homehub-device@sha256:d02339f38f38c94ef73ee36f065b5450b993e382b0ad9978df2676cc7141c869",
+      "ready": true
+    },
+    {
+      "pod": "device-service-6b747f5675-f7cw6",
+      "deployment": "device-service",
+      "image": "kar1n1911/homehub-device:0.2.0",
+      "image_id": "docker-pullable://kar1n1911/homehub-device@sha256:d02339f38f38c94ef73ee36f065b5450b993e382b0ad9978df2676cc7141c869",
+      "ready": true
+    },
+    {
+      "pod": "frontend-6f77d5cdd6-gqthn",
+      "deployment": "frontend",
+      "image": "kar1n1911/homehub-frontend:0.2.0",
+      "image_id": "docker-pullable://kar1n1911/homehub-frontend@sha256:05dbef2639a0b5b95db292a64e5b353582db4ea4c6b77d20416f1bf299443d23",
+      "ready": true
+    },
+    {
+      "pod": "frontend-6f77d5cdd6-lfsx5",
+      "deployment": "frontend",
+      "image": "kar1n1911/homehub-frontend:0.2.0",
+      "image_id": "docker-pullable://kar1n1911/homehub-frontend@sha256:05dbef2639a0b5b95db292a64e5b353582db4ea4c6b77d20416f1bf299443d23",
+      "ready": true
+    },
+    {
+      "pod": "household-service-57db89c5dd-d26sh",
+      "deployment": "household-service",
+      "image": "kar1n1911/homehub-household:0.2.0",
+      "image_id": "docker-pullable://kar1n1911/homehub-household@sha256:ee8b20b20e9800aa9bd77ca70e9a9d2e63ab655b6a01aa849393225c1569f38b",
+      "ready": true
+    },
+    {
+      "pod": "household-service-57db89c5dd-zbqbf",
+      "deployment": "household-service",
+      "image": "kar1n1911/homehub-household:0.2.0",
+      "image_id": "docker-pullable://kar1n1911/homehub-household@sha256:ee8b20b20e9800aa9bd77ca70e9a9d2e63ab655b6a01aa849393225c1569f38b",
+      "ready": true
+    },
+    {
+      "pod": "signal-receiver-5b6464ddbc-g4dzc",
+      "deployment": "signal-receiver",
+      "image": "kar1n1911/homehub-alertmanager:0.2.0",
+      "image_id": "docker-pullable://kar1n1911/homehub-alertmanager@sha256:9ac5d03e471820a42c10b4f5935c1ab2c7fd545cf71c2cd63e033e1cebcb3c9f",
+      "ready": true
+    },
+    {
+      "pod": "signal-receiver-5b6464ddbc-tfwbk",
+      "deployment": "signal-receiver",
+      "image": "kar1n1911/homehub-alertmanager:0.2.0",
+      "image_id": "docker-pullable://kar1n1911/homehub-alertmanager@sha256:9ac5d03e471820a42c10b4f5935c1ab2c7fd545cf71c2cd63e033e1cebcb3c9f",
+      "ready": true
+    },
+    {
+      "pod": "signal-worker-6546c546dd-9zvnm",
+      "deployment": "signal-worker",
+      "image": "kar1n1911/homehub-alertmanager:0.2.0",
+      "image_id": "docker-pullable://kar1n1911/homehub-alertmanager@sha256:9ac5d03e471820a42c10b4f5935c1ab2c7fd545cf71c2cd63e033e1cebcb3c9f",
+      "ready": true
+    },
+    {
+      "pod": "task-service-5f8978bfcb-clq9t",
+      "deployment": "task-service",
+      "image": "kar1n1911/homehub-task:0.2.0",
+      "image_id": "docker-pullable://kar1n1911/homehub-task@sha256:30a748b81d81b39dbe031b0d669b231f4c0a3be692cf1afcb358cc3e6fce9fb3",
+      "ready": true
+    },
+    {
+      "pod": "task-service-5f8978bfcb-vpq66",
+      "deployment": "task-service",
+      "image": "kar1n1911/homehub-task:0.2.0",
+      "image_id": "docker-pullable://kar1n1911/homehub-task@sha256:30a748b81d81b39dbe031b0d669b231f4c0a3be692cf1afcb358cc3e6fce9fb3",
+      "ready": true
+    }
+  ],
+  "source_checks": [
+    {
+      "deployment": "household-service",
+      "source_sha256": "e719f9d533af5f58e0163cd776084693c8080025d8e55a2cf0a0e86340301728",
+      "matches_workspace": true
+    },
+    {
+      "deployment": "task-service",
+      "source_sha256": "23aa11dc2d8536dbbf57de2eca7124fd59fe52e37a56d8f8f3f07077cddab685",
+      "matches_workspace": true
+    },
+    {
+      "deployment": "device-service",
+      "source_sha256": "86fe9e2a82b678ca4161bf945cd499fb2eda3bde6f6e37a11de5e8e76e07fae9",
+      "matches_workspace": true
+    },
+    {
+      "deployment": "alertmanager",
+      "source_sha256": "f02c9543a15204751ce681504679f288b994bbcc7185c88aecec1f6b900a1a84",
+      "matches_workspace": true
+    }
+  ]
+}

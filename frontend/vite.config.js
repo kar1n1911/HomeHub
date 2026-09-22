@@ -7,6 +7,7 @@ export default defineConfig({
     proxy: {
       "/api/households": "http://localhost:8001",
       "/api/tasks": "http://localhost:8002",
+      "/api/signals": "http://localhost:8004",
       "/api/devices": "http://localhost:8003"
     }
   }

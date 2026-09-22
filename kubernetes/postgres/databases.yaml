@@ -1,0 +1,54 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: homehub-household
+  namespace: homehub
+spec:
+  name: homehub_household
+  owner: homehub_household
+  cluster: { name: homehub-db }
+  databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: homehub-task
+  namespace: homehub
+spec:
+  name: homehub_task
+  owner: homehub_task
+  cluster: { name: homehub-db }
+  databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: homehub-device
+  namespace: homehub
+spec:
+  name: homehub_device
+  owner: homehub_device
+  cluster: { name: homehub-db }
+  databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: homehub-alertmanager
+  namespace: homehub
+spec:
+  name: homehub_alertmanager
+  owner: homehub_alertmanager
+  cluster: { name: homehub-db }
+  databaseReclaimPolicy: retain
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: homehub-receiver
+  namespace: homehub
+spec:
+  name: homehub_receiver
+  owner: homehub_receiver
+  cluster: { name: homehub-db }
+  databaseReclaimPolicy: retain

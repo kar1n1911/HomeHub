@@ -15,7 +15,8 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: YOUR_DOCKERHUB_USERNAME/homehub-frontend:0.1.0
+          image: kar1n1911/homehub-frontend:0.2.0
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
           readinessProbe:

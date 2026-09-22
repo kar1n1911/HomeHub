@@ -1,0 +1,24 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: signal-worker
+  namespace: homehub
+spec:
+  scaleTargetRef:
+    name: signal-worker
+  pollingInterval: 5
+  cooldownPeriod: 30
+  minReplicaCount: 0
+  maxReplicaCount: 4
+  advanced:
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleDown:
+          stabilizationWindowSeconds: 30
+  triggers:
+    - type: metrics-api
+      metadata:
+        url: http://alertmanager.homehub.svc.cluster.local:8000/internal/queue-depth
+        valueLocation: depth
+        targetValue: '10'
+        activationTargetValue: '0'

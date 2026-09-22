@@ -1,15 +1,44 @@
 import os
 import time
 from contextlib import asynccontextmanager
+from pathlib import Path
 from datetime import date
 
 from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
-from sqlalchemy import Boolean, Date, Integer, String, create_engine, select
+from sqlalchemy import Boolean, Date, Integer, String, create_engine, select, text
+from sqlalchemy.engine import URL
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+psycopg://homehub:homehub_dev@localhost:5432/homehub")
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+# Explicit DATABASE_URL is supported for isolated tests or external deployments.
+# Normal deployments inject only this service's credentials, with no shared fallback.
+def database_url():
+    if os.getenv("DATABASE_URL"):
+        return os.environ["DATABASE_URL"]
+    password_file = os.getenv("PGPASSWORD_FILE")
+    password = Path(password_file).read_text().strip() if password_file else os.environ["PGPASSWORD"]
+    query = {"sslmode": os.getenv("PGSSLMODE", "require")}
+    if os.getenv("PGSSLROOTCERT"):
+        query["sslrootcert"] = os.environ["PGSSLROOTCERT"]
+    return URL.create(
+        "postgresql+psycopg",
+        username=os.environ["PGUSER"], password=password,
+        host=os.environ["PGHOST"], port=int(os.getenv("PGPORT", "5432")),
+        database=os.environ["PGDATABASE"], query=query,
+    )
+
+
+DATABASE_URL = database_url()
+# Bound each replica's use of the shared database, including overflow.
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True,
+    pool_size=2,
+    max_overflow=0,
+    pool_timeout=2,
+    connect_args={"connect_timeout": 2, "options": "-c statement_timeout=2000"},
+)
 
 
 class Base(DeclarativeBase):
@@ -51,16 +80,32 @@ def task_dict(task: Task) -> dict:
 def initialize_database() -> None:
     for attempt in range(10):
         try:
-            Base.metadata.create_all(engine)
-            with Session(engine) as session:
-                if not session.scalar(select(Task.id).limit(1)):
-                    session.add_all([
-                        Task(title="Take recycling outside", due_date=date.today(), priority="high"),
-                        Task(title="Water the balcony herbs", due_date=date.today(), priority="medium", completed=True),
-                        Task(title="Plan weekend groceries", priority="medium"),
-                        Task(title="Replace hallway bulb", priority="low"),
-                    ])
-                    session.commit()
+            # Serialize schema creation and seeding across this service's replicas.
+            # The lock and marker are committed atomically with the seed rows.
+            with engine.begin() as connection:
+                connection.execute(text("SELECT pg_advisory_xact_lock(71002)"))
+                Base.metadata.create_all(connection)
+                connection.execute(text(
+                    "CREATE TABLE IF NOT EXISTS task_initialization "
+                    "(version INTEGER PRIMARY KEY)"
+                ))
+                initialized = connection.scalar(text(
+                    "SELECT version FROM task_initialization WHERE version = 1"
+                ))
+                if initialized is None:
+                    with Session(bind=connection) as session:
+                        # Adopt existing installations without duplicating their data.
+                        if session.scalar(select(Task.id).limit(1)) is None:
+                            session.add_all([
+                                Task(title="Take recycling outside", due_date=date.today(), priority="high"),
+                                Task(title="Water the balcony herbs", due_date=date.today(), priority="medium", completed=True),
+                                Task(title="Plan weekend groceries", priority="medium"),
+                                Task(title="Replace hallway bulb", priority="low"),
+                            ])
+                        session.flush()
+                    connection.execute(text(
+                        "INSERT INTO task_initialization (version) VALUES (1)"
+                    ))
             return
         except Exception:
             if attempt == 9:
@@ -71,15 +116,29 @@ def initialize_database() -> None:
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     initialize_database()
-    yield
+    try:
+        yield
+    finally:
+        engine.dispose()
 
 
-app = FastAPI(title="HomeHub Task Service", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="HomeHub Task Service", version="0.2.0", lifespan=lifespan)
 
 
 @app.get("/health")
 def health():
     return {"status": "ok", "service": "task-service"}
+
+
+@app.get("/ready")
+def ready():
+    try:
+        with engine.connect() as connection:
+            # Also detects missing tables/permissions, not just a live DB socket.
+            connection.execute(select(Task.id).limit(1))
+    except SQLAlchemyError:
+        raise HTTPException(status_code=503, detail="Database unavailable") from None
+    return {"status": "ready", "service": "task-service"}
 
 
 @app.get("/api/tasks")

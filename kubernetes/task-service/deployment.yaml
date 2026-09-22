@@ -13,20 +13,39 @@ spec:
       labels:
         app: task-service
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: task-service
-          image: YOUR_DOCKERHUB_USERNAME/homehub-task:0.1.0
+          image: kar1n1911/homehub-task:0.2.0
+          imagePullPolicy: Always
           ports:
             - containerPort: 8000
           envFrom:
             - configMapRef:
                 name: homehub-config
-            - secretRef:
-                name: homehub-secrets
-          readinessProbe:
+          env:
+            - name: PGDATABASE
+              value: homehub_task
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef: { name: task-db, key: username }
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef: { name: task-db, key: password }
+          volumeMounts:
+            - name: db-ca
+              mountPath: /etc/db-ca
+              readOnly: true
+          startupProbe:
             httpGet: { path: /health, port: 8000 }
-            initialDelaySeconds: 5
             periodSeconds: 5
+            failureThreshold: 24
+            timeoutSeconds: 2
+          readinessProbe:
+            httpGet: { path: /ready, port: 8000 }
+            timeoutSeconds: 7
+            initialDelaySeconds: 5
+            periodSeconds: 10
           livenessProbe:
             httpGet: { path: /health, port: 8000 }
             initialDelaySeconds: 15
@@ -34,6 +53,14 @@ spec:
           resources:
             requests: { cpu: 50m, memory: 64Mi }
             limits: { cpu: 250m, memory: 256Mi }
+      volumes:
+        - name: db-ca
+          secret:
+            secretName: homehub-db-ca
+            items:
+              - key: ca.crt
+                path: ca.crt
+
 ---
 apiVersion: v1
 kind: Service

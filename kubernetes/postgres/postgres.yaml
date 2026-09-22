@@ -1,70 +1,98 @@
-apiVersion: v1
-kind: PersistentVolumeClaim
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
 metadata:
-  name: postgres-data
+  name: homehub-db
   namespace: homehub
 spec:
-  accessModes: ["ReadWriteOnce"]
+  instances: 3
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.10-system-trixie@sha256:74f29d3343f8db89135b33b0b4c55641c415b96d08605034a6d0c2782f929146
+  enableSuperuserAccess: false
+  affinity:
+    enablePodAntiAffinity: true
+    podAntiAffinityType: required
+    topologyKey: kubernetes.io/hostname
+  storage:
+    size: 1Gi
   resources:
-    requests:
-      storage: 1Gi
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: postgres
-  namespace: homehub
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: postgres
-  strategy:
-    type: Recreate
-  template:
-    metadata:
-      labels:
-        app: postgres
-    spec:
-      containers:
-        - name: postgres
-          image: postgres:17-alpine
-          ports:
-            - containerPort: 5432
-          envFrom:
-            - configMapRef:
-                name: homehub-config
-            - secretRef:
-                name: homehub-secrets
-          readinessProbe:
-            exec:
-              command: ["pg_isready", "-U", "homehub", "-d", "homehub"]
-            initialDelaySeconds: 5
-            periodSeconds: 5
-          resources:
-            requests:
-              cpu: 100m
-              memory: 128Mi
-            limits:
-              cpu: 500m
-              memory: 512Mi
-          volumeMounts:
-            - name: data
-              mountPath: /var/lib/postgresql/data
-      volumes:
-        - name: data
-          persistentVolumeClaim:
-            claimName: postgres-data
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: postgres
-  namespace: homehub
-spec:
-  selector:
-    app: postgres
-  ports:
-    - port: 5432
-      targetPort: 5432
-
+    requests: { cpu: 100m, memory: 256Mi }
+    limits: { cpu: '1', memory: 512Mi }
+  bootstrap:
+    initdb:
+      database: homehub_household
+      owner: homehub_household
+      secret:
+        name: household-db
+      dataChecksums: true
+  postgresql:
+    parameters:
+      max_connections: '100'
+      shared_buffers: 128MB
+    synchronous:
+      method: any
+      number: 1
+      dataDurability: required
+      failoverQuorum: true
+    pg_hba:
+      # Reject application logins to every other database before default rules.
+      - hostssl homehub_household homehub_household all scram-sha-256
+      - host all homehub_household all reject
+      - hostssl homehub_task homehub_task all scram-sha-256
+      - host all homehub_task all reject
+      - hostssl homehub_device homehub_device all scram-sha-256
+      - host all homehub_device all reject
+      - hostssl homehub_alertmanager homehub_alertmanager all scram-sha-256
+      - host all homehub_alertmanager all reject
+      - hostssl homehub_receiver homehub_receiver all scram-sha-256
+      - host all homehub_receiver all reject
+  managed:
+    roles:
+      - name: homehub_household
+        ensure: present
+        login: true
+        superuser: false
+        createdb: false
+        createrole: false
+        replication: false
+        bypassrls: false
+        connectionLimit: 20
+        passwordSecret: { name: household-db }
+      - name: homehub_task
+        ensure: present
+        login: true
+        superuser: false
+        createdb: false
+        createrole: false
+        replication: false
+        bypassrls: false
+        connectionLimit: 24
+        passwordSecret: { name: task-db }
+      - name: homehub_device
+        ensure: present
+        login: true
+        superuser: false
+        createdb: false
+        createrole: false
+        replication: false
+        bypassrls: false
+        connectionLimit: 28
+        passwordSecret: { name: device-db }
+      - name: homehub_alertmanager
+        ensure: present
+        login: true
+        superuser: false
+        createdb: false
+        createrole: false
+        replication: false
+        bypassrls: false
+        connectionLimit: 16
+        passwordSecret: { name: alertmanager-db }
+      - name: homehub_receiver
+        ensure: present
+        login: true
+        superuser: false
+        createdb: false
+        createrole: false
+        replication: false
+        bypassrls: false
+        connectionLimit: 8
+        passwordSecret: { name: receiver-db }

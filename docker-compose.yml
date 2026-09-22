@@ -1,14 +1,23 @@
+# Development only: database HA is provided by the Kubernetes CNPG deployment.
 services:
   postgres:
     image: postgres:17-alpine
     environment:
-      POSTGRES_DB: homehub
-      POSTGRES_USER: homehub
-      POSTGRES_PASSWORD: homehub_dev
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/admin_password
+    secrets:
+      - alertmanager_password
+      - receiver_password
+      - admin_password
+      - household_password
+      - task_password
+      - device_password
     volumes:
-      - homehub-data:/var/lib/postgresql/data
+      - homehub-isolated-data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U homehub -d homehub"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
       interval: 5s
       timeout: 3s
       retries: 12
@@ -16,26 +25,118 @@ services:
   household-service:
     build: ./services/household-service
     environment:
-      DATABASE_URL: postgresql+psycopg://homehub:homehub_dev@postgres:5432/homehub
+      PGHOST: postgres
+      PGDATABASE: homehub_household
+      PGUSER: homehub_household
+      PGPASSWORD_FILE: /run/secrets/household_password
+      PGSSLMODE: disable
+    secrets:
+      - household_password
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/ready', timeout=7)"]
+      interval: 10s
+      timeout: 8s
+      retries: 3
+      start_period: 60s
 
   task-service:
     build: ./services/task-service
     environment:
-      DATABASE_URL: postgresql+psycopg://homehub:homehub_dev@postgres:5432/homehub
+      PGHOST: postgres
+      PGDATABASE: homehub_task
+      PGUSER: homehub_task
+      PGPASSWORD_FILE: /run/secrets/task_password
+      PGSSLMODE: disable
+    secrets:
+      - task_password
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/ready', timeout=7)"]
+      interval: 10s
+      timeout: 8s
+      retries: 3
+      start_period: 60s
 
   device-service:
     build: ./services/device-service
     environment:
-      DATABASE_URL: postgresql+psycopg://homehub:homehub_dev@postgres:5432/homehub
+      PGHOST: postgres
+      PGDATABASE: homehub_device
+      PGUSER: homehub_device
+      PGPASSWORD_FILE: /run/secrets/device_password
+      PGSSLMODE: disable
+      PIPELINE_TOKEN_FILE: /run/secrets/pipeline_password
+    secrets:
+      - device_password
+      - pipeline_password
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/ready', timeout=7)"]
+      interval: 10s
+      timeout: 8s
+      retries: 3
+      start_period: 60s
+
+  alertmanager:
+    build: ./services/alertmanager-service
+    environment:
+      ROLE: collector
+      PGHOST: postgres
+      PGDATABASE: homehub_alertmanager
+      PGUSER: homehub_alertmanager
+      PGPASSWORD_FILE: /run/secrets/alertmanager_password
+      PGSSLMODE: disable
+      PIPELINE_TOKEN_FILE: /run/secrets/pipeline_password
+    secrets:
+      - alertmanager_password
+      - pipeline_password
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  signal-worker:
+    build: ./services/alertmanager-service
+    environment:
+      ROLE: worker
+      PGHOST: postgres
+      PGDATABASE: homehub_alertmanager
+      PGUSER: homehub_alertmanager
+      PGPASSWORD_FILE: /run/secrets/alertmanager_password
+      PGSSLMODE: disable
+      PIPELINE_TOKEN_FILE: /run/secrets/pipeline_password
+    secrets:
+      - alertmanager_password
+      - pipeline_password
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  signal-receiver:
+    build: ./services/alertmanager-service
+    environment:
+      ROLE: receiver
+      PGHOST: postgres
+      PGDATABASE: homehub_receiver
+      PGUSER: homehub_receiver
+      PGPASSWORD_FILE: /run/secrets/receiver_password
+      PGSSLMODE: disable
+      PIPELINE_TOKEN_FILE: /run/secrets/pipeline_password
+    secrets:
+      - receiver_password
+      - pipeline_password
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
 
   frontend:
     build: ./frontend
@@ -45,6 +146,23 @@ services:
       - household-service
       - task-service
       - device-service
+      - alertmanager
 
 volumes:
-  homehub-data:
+  homehub-isolated-data:
+
+secrets:
+  admin_password:
+    file: ./.secrets/admin-password
+  household_password:
+    file: ./.secrets/household-password
+  task_password:
+    file: ./.secrets/task-password
+  device_password:
+    file: ./.secrets/device-password
+  alertmanager_password:
+    file: ./.secrets/alertmanager-password
+  receiver_password:
+    file: ./.secrets/receiver-password
+  pipeline_password:
+    file: ./.secrets/pipeline-password

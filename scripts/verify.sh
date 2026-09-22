@@ -6,6 +6,7 @@ python3 -m compileall -q services
 
 echo "Checking Kubernetes manifests"
 kubectl kustomize kubernetes >/dev/null
+kubectl kustomize kubernetes-local >/dev/null
 
 echo "Checking frontend build"
 npm --prefix frontend run build

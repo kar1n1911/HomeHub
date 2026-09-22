@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: signal-worker
+  namespace: homehub
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: signal-worker
+  template:
+    metadata:
+      labels:
+        app: signal-worker
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: signal-worker
+          image: kar1n1911/homehub-alertmanager:0.2.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: homehub-config
+          env:
+            - name: ROLE
+              value: worker
+            - name: PIPELINE_TOKEN
+              valueFrom:
+                secretKeyRef: { name: signal-pipeline, key: token }
+            - name: PGDATABASE
+              value: homehub_alertmanager
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef: { name: alertmanager-db, key: username }
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef: { name: alertmanager-db, key: password }
+          volumeMounts:
+            - name: db-ca
+              mountPath: /etc/db-ca
+              readOnly: true
+          startupProbe:
+            httpGet: { path: /health, port: 8000 }
+            periodSeconds: 5
+            failureThreshold: 24
+            timeoutSeconds: 2
+          readinessProbe:
+            httpGet: { path: /ready, port: 8000 }
+            timeoutSeconds: 7
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /health, port: 8000 }
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits: { cpu: 250m, memory: 256Mi }
+      volumes:
+        - name: db-ca
+          secret:
+            secretName: homehub-db-ca
+            items:
+              - key: ca.crt
+                path: ca.crt
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: signal-worker
+  namespace: homehub
+spec:
+  selector:
+    app: signal-worker
+  ports:
+    - port: 8000
+      targetPort: 8000

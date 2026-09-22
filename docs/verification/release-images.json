@@ -1,0 +1,45 @@
+{
+  "checked_at": "2026-09-22T05:21:11.909592+00:00",
+  "images": [
+    {
+      "image": "kar1n1911/homehub-frontend:0.2.0",
+      "digest": "sha256:05dbef2639a0b5b95db292a64e5b353582db4ea4c6b77d20416f1bf299443d23",
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    },
+    {
+      "image": "kar1n1911/homehub-household:0.2.0",
+      "digest": "sha256:ee8b20b20e9800aa9bd77ca70e9a9d2e63ab655b6a01aa849393225c1569f38b",
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    },
+    {
+      "image": "kar1n1911/homehub-task:0.2.0",
+      "digest": "sha256:30a748b81d81b39dbe031b0d669b231f4c0a3be692cf1afcb358cc3e6fce9fb3",
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    },
+    {
+      "image": "kar1n1911/homehub-device:0.2.0",
+      "digest": "sha256:d02339f38f38c94ef73ee36f065b5450b993e382b0ad9978df2676cc7141c869",
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    },
+    {
+      "image": "kar1n1911/homehub-alertmanager:0.2.0",
+      "digest": "sha256:9ac5d03e471820a42c10b4f5935c1ab2c7fd545cf71c2cd63e033e1cebcb3c9f",
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    }
+  ]
+}

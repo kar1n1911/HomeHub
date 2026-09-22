@@ -1,0 +1,17 @@
+{
+  "result": "passed",
+  "device_id": 7,
+  "message_id": "6eaa0d7f-fd68-4029-95c8-fb0939359ac3",
+  "checks": [
+    "source idempotency",
+    "conflicting ID rejected",
+    "receiver outage retry",
+    "process restart durability",
+    "two concurrent workers",
+    "receiver duplicate suppression after lost acknowledgement",
+    "device state persisted",
+    "expired worker lease reclaimed",
+    "unchanged polling suppressed",
+    "heartbeat emitted on next due poll"
+  ]
+}

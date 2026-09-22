@@ -8,3 +8,10 @@ frontend/dist/
 .idea/
 .vscode/
 
+
+# Generated local database credentials
+.secrets/
+
+# Local browser verification artifacts
+.playwright-cli/
+output/playwright/

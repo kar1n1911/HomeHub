@@ -1,0 +1,16 @@
+{
+  "namespace": "homehub-ha-check-572862f7",
+  "oldPrimary": "homehub-db-1",
+  "newPrimary": "homehub-db-2",
+  "recoverySeconds": 192.4,
+  "instancesReady": 3,
+  "synchronousStandbys": "ANY 1 (\"homehub-db-1\",\"homehub-db-3\",\"homehub-db-2\")",
+  "crossDatabaseAccess": "denied for all three application roles",
+  "privilegeEscalation": "denied",
+  "tls": "verify-full",
+  "committedTaskRetained": true,
+  "writeAfterFailover": true,
+  "apiPodsUnchanged": true,
+  "localImages": true,
+  "scope": "single-node Pod-failure test; not a node or zone outage test"
+}

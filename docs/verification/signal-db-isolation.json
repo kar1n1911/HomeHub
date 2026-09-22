@@ -1,0 +1,12 @@
+[
+  {
+    "service": "alertmanager",
+    "tls": true,
+    "cross_database_rejected": true
+  },
+  {
+    "service": "signal-receiver",
+    "tls": true,
+    "cross_database_rejected": true
+  }
+]
