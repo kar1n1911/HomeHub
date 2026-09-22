@@ -1,0 +1,11 @@
+{
+  "tasks_data_preserved": true,
+  "devices_data_preserved": true,
+  "households_data_preserved": true,
+  "pvc_unchanged": true,
+  "secrets_unchanged": true,
+  "excluded_fields": [
+    "devices.next_poll (advances normally during collection)"
+  ],
+  "checked_at": "2026-09-22T16:34:32.690341+00:00"
+}

@@ -61,7 +61,7 @@ operators, Compose volumes and images are retained. It does not perform a global
 Docker prune. Pending signals remain stored and resume processing after restart.
 
 Restart with `docker compose up -d` and/or
-`kubectl --context orbstack apply -k kubernetes-local`. Use your selected context
+`./scripts/deploy-k8s.sh`. Use `--context NAME` for your selected context
 when restarting a different cluster. Retain `.secrets/` alongside database data.
 
 The interface has three bookmarkable pages: `/#overview`, `/#tasks`, and
@@ -99,28 +99,70 @@ The publishing script targets Linux AMD64 and ARM64 by default. CloudNativePG an
 
 ## Deploy to Kubernetes
 
-Requirements: Kubernetes compatible with CloudNativePG 1.30.0, a default StorageClass, and enough resources for three database instances. The base configuration requires at least three schedulable nodes; its failure tolerance also depends on independent storage and an available control plane. Install Metrics Server for API HPA operation (on Minikube: `minikube addons enable metrics-server`).
+### OrbStack / local single-node deployment (default)
+
+Run this same command for the first deployment and after cleanup:
 
 ```bash
-./scripts/install-db-operator.sh
-./scripts/install-signal-scaler.sh
-kubectl apply -f kubernetes/namespace.yaml
-python3 scripts/create-db-secrets.py kubernetes
-kubectl apply -k kubernetes/
-kubectl get clusters,databases,pods,services,pvc,hpa,scaledobjects -n homehub
+./scripts/deploy-k8s.sh
 ```
 
-For a one-node  demonstration, replace the apply command with:
+The script explicitly targets context `orbstack` and the `kubernetes-local/`
+overlay. It checks node/storage prerequisites, installs missing CloudNativePG,
+KEDA and Metrics Server components, preserves existing database credentials, and
+waits for database, application and autoscaling readiness. It does not report
+success merely because manifests were accepted. Kubernetes 1.34+ is required by
+the pinned Metrics Server 0.9.0 installer; an existing Metrics API provider is reused.
+Python 3, kubectl, a default StorageClass, network access for initial installation,
+and enough resources for three PostgreSQL instances are required.
+
+Open <http://localhost:30080>. Check health at any time:
 
 ```bash
-kubectl apply -k kubernetes-local/
+python3 scripts/check-k8s-health.py
+kubectl --context orbstack -n homehub get deployments,pods,pvc,hpa,scaledobjects
 ```
 
-Allow the operator to initialize three database instances and provision the databases before expecting API readiness. APIs retry startup and Kubernetes restarts them if provisioning takes longer. The frontend is exposed on NodePort `30080`; on Minikube use `minikube service frontend -n homehub`. The operator installation includes cluster-scoped CRDs and permissions and runs two controller replicas.
+Healthy means PostgreSQL **3/3 ready**, three Bound PVCs, all six always-on
+application Deployments at their requested ready replica counts, numeric CPU
+metrics for the three API HPAs, and a Ready KEDA ScaledObject. A zero-replica
+signal-worker is normal when idle. The local overlay shares one host, so it does
+not protect against loss of the whole machine. Metrics Server uses the cluster
+CA for kubelet TLS verification; the installer does not disable that verification.
 
-Each database instance receives a separate 1 GiB PVC. `homehub-db-rw` follows the primary. Synchronous replication waits for one standby; if no standby is available, writes wait/fail instead of silently dropping the replication requirement. This is not a backup system.
+A repeatable cleanup/redeploy cycle, preserving data:
 
-Existing deployments need an explicit data migration before switching to the new databases. Applying this configuration does not import old data or automatically delete obsolete single-instance Deployments, Services, PVCs, or the old shared Secret. See [architecture and migration notes](docs/architecture/architecture.md).
+```bash
+./scripts/cleanup.sh k8s
+./scripts/deploy-k8s.sh
+```
+
+Cleanup retains database Pods, volumes, Secrets and infrastructure operators.
+Compose can remain stopped; port 8080 is unrelated to this Kubernetes deployment.
+
+### Multi-node deployment (explicit choice)
+
+```bash
+./scripts/deploy-k8s.sh --context YOUR_CLUSTER --profile multi-node
+```
+
+This uses `kubernetes/`, which requires at least three Ready schedulable nodes
+and enforces database separation across nodes. The script refuses insufficient
+node counts before changing resources. Node taints and available capacity must
+also permit scheduling. Failure tolerance still depends on independent storage
+and an available control plane. Do not apply the multi-node base to one-node
+OrbStack: its required anti-affinity prevents the database reaching full readiness.
+
+If the base was accidentally applied to OrbStack, rerun `./scripts/deploy-k8s.sh`.
+It reapplies preferred local affinity, and CloudNativePG reconciles the database
+Pods without deleting PVCs or resetting credentials. CPU HPAs require Metrics
+Server; KEDA's external metrics alone do not provide CPU utilization. See the
+[official Metrics Server requirements](https://github.com/kubernetes-sigs/metrics-server#requirements).
+
+Each database instance receives a separate 1 GiB PVC. `homehub-db-rw` follows the
+primary. Synchronous replication requires one standby; writes wait/fail when
+none is available. This is not a backup system. Existing legacy single-database
+installations still require explicit migration; see the architecture notes.
 
 ## Verify
 

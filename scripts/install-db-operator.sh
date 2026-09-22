@@ -1,5 +1,9 @@
 #!/usr/bin/env sh
 set -eu
+# Callers may pin a context without changing the user's global kubeconfig.
+if [ -n "${HOMEHUB_CONTEXT:-}" ]; then
+  kubectl() { command kubectl --context "$HOMEHUB_CONTEXT" "$@"; }
+fi
 # Render the pinned release before applying so repeated installs retain two replicas.
 raw_manifest=$(mktemp)
 ha_manifest=$(mktemp)

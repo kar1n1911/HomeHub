@@ -68,7 +68,7 @@ k get hpa,scaledobjects
 仅在应用之前被清理时，在开录前恢复：
 
 ```bash
-kubectl --context orbstack apply -k kubernetes-local/
+./scripts/deploy-k8s.sh
 k rollout status deployment/frontend --timeout=120s
 k rollout status deployment/task-service --timeout=120s
 k rollout status deployment/device-service --timeout=120s

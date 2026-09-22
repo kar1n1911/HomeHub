@@ -12,6 +12,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument('target', choices=['kubernetes', 'compose'])
 parser.add_argument('--namespace', default='homehub')
 args = parser.parse_args()
+kubectl = ['kubectl']
+if os.environ.get('HOMEHUB_CONTEXT'):
+    kubectl += ['--context', os.environ['HOMEHUB_CONTEXT']]
 services = ['household', 'task', 'device', 'alertmanager', 'receiver']
 if args.target == 'compose':
     directory = Path(__file__).resolve().parents[1] / '.secrets'
@@ -29,11 +32,11 @@ if args.target == 'compose':
             stream.write(secrets.token_urlsafe(48) + '\n')
     print('Local secret files ready; existing passwords retained.')
 else:
-    subprocess.run(['kubectl', 'get', 'namespace', args.namespace], check=True, stdout=subprocess.DEVNULL)
+    subprocess.run(kubectl + ['get', 'namespace', args.namespace], check=True, stdout=subprocess.DEVNULL)
     for service in services:
         name = f'{service}-db'
-        existing = subprocess.check_output([
-            'kubectl', 'get', 'secret', name, '-n', args.namespace,
+        existing = subprocess.check_output(kubectl + [
+            'get', 'secret', name, '-n', args.namespace,
             '--ignore-not-found', '-o', 'json'], text=True)
         if existing.strip():
             data = json.loads(existing)['data']
@@ -47,7 +50,7 @@ else:
             'type': 'kubernetes.io/basic-auth',
             'stringData': {'username': f'homehub_{service}', 'password': secrets.token_urlsafe(48)},
         }
-        result = subprocess.run(['kubectl', 'create', '-f', '-'], input=json.dumps(secret),
+        result = subprocess.run(kubectl + ['create', '-f', '-'], input=json.dumps(secret),
                                 text=True, capture_output=True)
         if result.returncode:
             # Never echo the serialized secret or kubectl's request error body.
@@ -55,9 +58,9 @@ else:
     print(f'Database Secrets ready in {args.namespace}; existing passwords retained.')
 
 if args.target == 'kubernetes':
-    existing = subprocess.check_output(['kubectl', 'get', 'secret', 'signal-pipeline', '-n', args.namespace, '--ignore-not-found', '-o', 'name'], text=True)
+    existing = subprocess.check_output(kubectl + ['get', 'secret', 'signal-pipeline', '-n', args.namespace, '--ignore-not-found', '-o', 'name'], text=True)
     if not existing.strip():
         secret = {'apiVersion': 'v1', 'kind': 'Secret', 'metadata': {'name': 'signal-pipeline', 'namespace': args.namespace}, 'stringData': {'token': secrets.token_urlsafe(48)}}
-        result = subprocess.run(['kubectl', 'create', '-f', '-'], input=json.dumps(secret), text=True, capture_output=True)
+        result = subprocess.run(kubectl + ['create', '-f', '-'], input=json.dumps(secret), text=True, capture_output=True)
         if result.returncode:
             raise SystemExit('Could not create pipeline Secret')

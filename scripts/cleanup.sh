@@ -21,7 +21,7 @@ Default: all (HomeHub Compose + Kubernetes application workloads).
 
 This stops application access. No database data or credentials are deleted.
 Restart Compose: docker compose up -d
-Restart local Kubernetes: kubectl --context orbstack apply -k kubernetes-local
+Restart local Kubernetes: ./scripts/deploy-k8s.sh
 HELP
 }
 chosen=false
