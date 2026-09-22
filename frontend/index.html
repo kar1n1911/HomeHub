@@ -6,6 +6,12 @@
     <meta name="theme-color" content="#e7ece8" />
     <meta name="description" content="HomeHub household management dashboard" />
     <title>HomeHub</title>
+    <script>
+      try {
+        const theme = localStorage.getItem('homehub-theme');
+        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+      } catch { /* Use the system theme when storage is unavailable. */ }
+    </script>
   </head>
   <body>
     <div id="root"></div>

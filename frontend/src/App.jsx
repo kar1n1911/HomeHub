@@ -1,7 +1,9 @@
+import "@fontsource-variable/manrope";
 import Devices from "./Devices";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   CheckCircle,
+  Sun,
   Clock,
   House,
   Lightning,
@@ -51,12 +53,26 @@ function Status({ state }) {
   return (
     <span className={`system-status ${state}`}>
       <Icon size={17} weight="fill" />
-      {state === "error" ? "Service issue" : "All services online"}
+      {state === "error" ? "Connection issue" : "Connected"}
     </span>
   );
 }
 
 function App() {
+  const [theme, setTheme] = useState(() => {
+    try { const saved = localStorage.getItem("homehub-theme"); return ["light", "dark"].includes(saved) ? saved : "system"; } catch { return "system"; }
+  });
+  const [activeSection, setActiveSection] = useState(() => window.location.hash.slice(1) || "overview");
+  const [taskFilter, setTaskFilter] = useState("all");
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    try { localStorage.setItem("homehub-theme", theme); } catch { /* Storage may be unavailable. */ }
+  }, [theme]);
+  useEffect(() => {
+    const update = () => setActiveSection(window.location.hash.slice(1) || "overview");
+    window.addEventListener("hashchange", update);
+    return () => window.removeEventListener("hashchange", update);
+  }, []);
   const [data, setData] = useState(emptyData);
   const [state, setState] = useState("loading");
   const [error, setError] = useState("");
@@ -94,6 +110,7 @@ function App() {
       const task = await saveTask(api.tasks, "POST", { ...draft, title, due_date: draft.due_date || null });
       setData((current) => ({ ...current, tasks: [...current.tasks, task] }));
       closeTaskForm();
+      setTaskFilter("all");
       setNotice(`Created “${task.title}”.`);
     } catch (saveError) {
       setCreateError(saveError.message);
@@ -162,6 +179,8 @@ function App() {
     [data.devices]
   );
 
+  const visibleTasks = data.tasks.filter(task => taskFilter === "all" || (taskFilter === "completed" ? task.completed : !task.completed));
+
   if (state === "loading") {
     return (
       <main className="loading-shell" aria-busy="true" aria-label="Loading HomeHub">
@@ -178,25 +197,33 @@ function App() {
 
   return (
     <div className="app-shell">
+      <a className="skip-link" href="#overview">Skip to content</a>
       <header className="topbar">
         <a className="brand" href="#overview" aria-label="HomeHub home">
           <span className="brand-mark"><House size={22} weight="fill" /></span>
           HomeHub
         </a>
         <nav aria-label="Main navigation">
-          <a className="active" href="#overview">Overview</a>
-          <a href="#tasks">Tasks</a>
-          <a href="#devices">Devices</a>
+          {[["Overview", "overview"], ["Tasks", "tasks"], ["Devices", "devices"]].map(([label, id]) => (
+            <a key={id} className={activeSection === id ? "active" : ""} href={`#${id}`} aria-current={activeSection === id ? "location" : undefined}>{label}</a>
+          ))}
         </nav>
-        <Status state={state} />
+        <div className="header-controls">
+          <Status state={state} />
+          <div className="theme-control"><Sun size={18} aria-hidden="true" />
+            <select aria-label="Appearance" value={theme} onChange={event => setTheme(event.target.value)}>
+              <option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option>
+            </select>
+          </div>
+        </div>
       </header>
 
-      <main id="overview">
+      <main id="overview" tabIndex={-1}>
         <section className="intro">
           <div>
             <p className="eyebrow">Household overview</p>
             <h1>{data.household?.name || "Your home"}</h1>
-            <p className="lede">One calm place for people, shared work, and connected devices.</p>
+            <p className="lede">People, shared tasks, and the devices that keep home running.</p>
           </div>
           <button className="primary-button" type="button" ref={addTaskButton}
             aria-expanded={showTaskForm} aria-controls="new-task-form"
@@ -271,9 +298,14 @@ function App() {
               <div><h2>Shared tasks</h2><p>Track your household's shared work</p></div>
               <span className="task-count">{data.tasks.length} tasks</span>
             </div>
-            {data.tasks.length ? (
+            <div className="task-toolbar" role="group" aria-label="Filter tasks">
+              {[["all", "All", data.tasks.length], ["active", "To do", data.tasks.length - completedTasks], ["completed", "Completed", completedTasks]].map(([key, label, count]) => (
+                <button type="button" key={key} aria-pressed={taskFilter === key} onClick={() => setTaskFilter(key)}>{label}<span>{count}</span></button>
+              ))}
+            </div>
+            {visibleTasks.length ? (
               <div className="task-list">
-                {data.tasks.map((task) => (
+                {visibleTasks.map((task) => (
                   <article className={`task-row ${task.completed ? "completed" : ""}`} key={task.id} aria-busy={savingTasks.has(task.id)}>
                     <label className="task-toggle">
                       <input type="checkbox" checked={task.completed} disabled={savingTasks.has(task.id)}
@@ -291,7 +323,7 @@ function App() {
                   </article>
                 ))}
               </div>
-            ) : <p className="empty-state">No shared tasks yet.</p>}
+            ) : <div className="empty-state"><CheckCircle size={30} aria-hidden="true" /><h3>{taskFilter === "active" ? "You’re all caught up" : taskFilter === "completed" ? "No completed tasks yet" : "Make room for your first task"}</h3><p>{taskFilter === "completed" ? "Tick a task when it’s done. It will appear here." : "Use Add task to plan what needs doing at home."}</p></div>}
           </section>
 
           <Devices devices={data.devices} onAdded={(device) => setData(current => ({ ...current, devices: [...current.devices, device] }))} />
@@ -300,7 +332,7 @@ function App() {
 
       <footer>
         <span>HomeHub household management</span>
-        <span>Independently scalable services</span>
+        <span>Shared tasks. Connected home.</span>
       </footer>
     </div>
   );

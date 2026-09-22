@@ -1,0 +1,29 @@
+{
+  "url": "http://localhost:30080/",
+  "checked_at": "2026-09-22T05:42:47.877Z",
+  "lighthouse_version": "13.5.0",
+  "mode": "mobile simulated throttling",
+  "scores": {
+    "performance": 0.97,
+    "accessibility": 1,
+    "best-practices": 1,
+    "seo": 1
+  },
+  "metrics": {
+    "largest-contentful-paint": {
+      "value": 1983.5838,
+      "unit": "millisecond",
+      "display": "2.0\u00a0s"
+    },
+    "cumulative-layout-shift": {
+      "value": 0.08748655446023298,
+      "unit": "unitless",
+      "display": "0.087"
+    },
+    "total-blocking-time": {
+      "value": 0,
+      "unit": "millisecond",
+      "display": "0\u00a0ms"
+    }
+  }
+}

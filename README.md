@@ -61,7 +61,7 @@ Every API exposes `/health` for liveness and `/ready` for database-backed readin
 
 ## Build and publish application images
 
-The application manifests use release `0.2.0` under `kar1n1911` on Docker Hub. Five images cover frontend, household, task, device, and Alertmanager; collector, worker and receiver use the same Alertmanager image with separate execution roles and database access. To reproduce the release with an existing Docker Hub login:
+The application manifests use frontend `0.2.1` and backend release `0.2.0` under `kar1n1911` on Docker Hub. Five images cover frontend, household, task, device, and Alertmanager; collector, worker and receiver use the same Alertmanager image with separate execution roles and database access. To reproduce the release with an existing Docker Hub login:
 
 ```bash
 ./scripts/publish-images.sh

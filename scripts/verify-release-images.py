@@ -13,7 +13,8 @@ def run(*args):
     return subprocess.check_output(args,text=True)
 
 def inspect(service):
-    reference=f'kar1n1911/homehub-{service}:0.2.0'
+    version='0.2.1' if service=='frontend' else '0.2.0'
+    reference=f'kar1n1911/homehub-{service}:{version}'
     raw=json.loads(run('docker','buildx','imagetools','inspect','--raw',reference))
     platforms=sorted({m['platform']['os']+'/'+m['platform']['architecture'] for m in raw['manifests'] if m['platform']['os']=='linux'})
     assert platforms==['linux/amd64','linux/arm64'],reference
@@ -39,7 +40,7 @@ for pod in pods:
     for container in pod.get('status',{}).get('containerStatuses',[]):
         if not container['image'].startswith('kar1n1911/'):
             continue
-        assert container['image'].endswith(':0.2.0') and container['ready'],pod['metadata']['name']
+        assert container['image'] in {m['image'] for m in manifests} and container['ready'],pod['metadata']['name']
         spec=next(c for c in pod['spec']['containers'] if c['name']==container['name'])
         assert spec['imagePullPolicy']=='Always'
         records.append({'pod':pod['metadata']['name'],'deployment':pod['metadata']['labels']['app'],'image':container['image'],'image_id':container['imageID'],'ready':True})

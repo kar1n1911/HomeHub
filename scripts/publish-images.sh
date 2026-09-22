@@ -6,7 +6,8 @@ cd "$(dirname "$0")/.."
 docker buildx inspect homehub-release >/dev/null 2>&1 || docker buildx create --name homehub-release --driver docker-container
 for service in frontend household task device alertmanager; do
   context="services/$service-service"
-  if [ "$service" = frontend ]; then context=frontend; fi
+  release=0.2.0
+  if [ "$service" = frontend ]; then context=frontend; release=0.2.1; fi
   docker buildx build --builder homehub-release --platform "${PLATFORMS:-linux/amd64,linux/arm64}" \
-    --tag "kar1n1911/homehub-$service:${VERSION:-0.2.0}" --push "$context"
+    --tag "kar1n1911/homehub-$service:${VERSION:-$release}" --push "$context"
 done
