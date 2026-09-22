@@ -1,203 +1,130 @@
 # HomeHub 十分钟演示视频计划书
 
-## 目标与成片形式
+适用版本：frontend 0.2.2，backend 0.2.0。更新日期：2026-09-22。
 
-目标：让老师在十分钟内看懂 HomeHub 的用途、微服务边界、REST 调用、Kubernetes 部署、持久化和独立扩容，并看到真实运行证据。
+配套逐段旁白：[演示台词](narration-zh.md)。本文用于安排画面与操作，台词文件用于朗读。
 
-建议成片 **9 分 40 秒**，预留 20 秒给页面加载、口误或转场，总长不要超过 10 分钟。采用屏幕录制加旁白：浏览器、终端和代码编辑器三个窗口即可。可用本计划组织中文排练；正式旁白按课程要求选择语言。
+## 一、成片目标
 
-演示环境固定为本地 OrbStack Kubernetes，页面为 `http://localhost:30080/`。
-Compose 的 `http://localhost:8080/` 是另一套数据，本视频不要混用。
+建议时长 **9 分 40 秒**，预留 20 秒缓冲，成片必须保持在作业规定的 5–10 分钟内。时间表是彩排目标，不是经过录音测量的保证。
 
-当前发布：前端 `0.2.2`，后端 `0.2.0`；Docker Hub 用户 `kar1n1911`。
+录制形式：屏幕录制加旁白，使用浏览器、终端、代码编辑器。无需制作复杂幻灯片。
 
-## 分钟安排与现场动作
+影片要回答：应用做什么、服务如何协作、为什么这样设计、如何部署、数据如何保存、能否独立扩容、安全上做了什么以及还缺什么。
 
-| 时间 | 画面与动作 | 要讲清楚的内容 | 对应证据 |
+三页面分工：
+
+- **Overview**：家庭汇总、待办预览、设备预览及页面入口。
+- **Tasks**：创建任务、筛选、标记完成。
+- **Devices**：登记模拟设备、显示读数、查看信号投递与 JSON。
+
+固定使用 Kubernetes 的 `http://localhost:30080/`。不要混入 Compose 的 8080 页面，它们使用不同数据。
+
+## 二、录制时间表
+
+| 段落 | 时间 | 画面与操作 | 必须留下的证据 |
 |---|---|---|---|
-| 00:00–00:40 | 打开 Overview 首页，指出汇总及 Tasks、Devices 页面入口 | 家庭成员用一个页面管理共享任务与模拟设备；设备读数由后台采集并发送给 HTTP 接收端 | 软件用途、浏览器访问 |
-| 00:40–01:40 | 展示架构图，沿浏览器到数据库、设备到接收端两条路径讲解 | 各服务职责、REST、独立部署；数据库单独运行，业务拥有独立数据库和账号 | 架构与组件映射 |
-| 01:40–02:30 | 终端显示 context、Deployments、Pods、Services、PVC、数据库集群 | 当前确实在 Kubernetes 运行；NodePort 是外部入口；三个数据库实例及各自持久卷 | Kubernetes、持久化、外部访问 |
-| 02:30–04:00 | 切换 Tasks，点击 Add task，创建任务，勾选完成，切换 Completed，刷新确认仍完成 | 请求经 Nginx 到 Task REST API，写入 PostgreSQL；刷新后从服务端重新读取 | 提供/调用 REST、真实业务流程 |
-| 04:00–05:05 | 切换 Devices，点击 Add device，填写名称、房间、读数和采样间隔，保存；展开对应信号 JSON，刷新 | Device API 保存设备和待发送记录；后台错峰采样、抑制不变读数；JSON 携带唯一 ID 并投递 | 设备入口、服务间交互 |
-| 05:05–05:55 | 查看浏览器 Network 中的一次 API 请求，展示相关 fetch 代码和 API 日志 | 前端以代码调用 REST；服务提供 JSON 接口；日志能对应刚才的操作 | 编程调用 REST、日志输出 |
-| 05:55–07:15 | 编辑器依次展示 frontend、task-service、数据库和扩容 YAML 的关键字段 | Deployment/Service、探针、Secret 引用、PVC、CPU HPA、KEDA 队列扩容 | YAML 讲解、部署细节 |
-| 07:15–08:05 | 单独将 frontend 从 2 扩至 3，展示其他服务副本数未被一起修改；恢复 2 | 应用副本无本地业务状态，因此可独立水平扩容；不同服务按各自负载扩容 | 独立扩容现场证据 |
-| 08:05–09:05 | 回到架构图，简要展示已有数据库 HA/信号恢复验证记录 | 可用性与成本取舍、安全措施、尚未解决的问题；历史测试不冒充本次现场测试 | 收益、挑战、安全讨论 |
-| 09:05–09:40 | 展示 GitHub 仓库与 Docker Hub 镜像，结束于可操作的首页 | 源码和 Kubernetes 配置的位置、镜像可拉取；总结已验证的核心流程 | 配置管理仓库、镜像发布 |
-| 09:40–10:00 | 缓冲，不安排新内容 | 加载延迟和自然停顿 | 控制总时长 |
+| 1 开场与导航 | 00:00–00:40 | Overview 首页；依次点击 Tasks、Devices，再回 Overview | 三个真正切换内容的页面，明确应用用途 |
+| 2 架构 | 00:40–01:40 | 已打开的架构图；指向浏览器、三个业务 API、数据库和信号链路 | 服务职责、REST 交互、组件映射 |
+| 3 Kubernetes 运行 | 01:40–02:25 | 显示集群 context、Deployment、Pod、Service、PVC、数据库集群 | 程序确实在 Kubernetes 上运行；NodePort 外部入口 |
+| 4 任务闭环 | 02:25–03:45 | Tasks → Add task → Create task → 勾选完成 → Completed → 刷新 | 创建、修改、服务端保存和刷新读取 |
+| 5 设备与信号 | 03:45–05:00 | Devices → Add device → Save device → 找到对应信号并展开 JSON | 设备入口、编码、HTTP 投递状态 |
+| 6 REST 与日志 | 05:00–05:50 | Network 中任务请求；fetch 与后端路由代码；终端日志 | 自己实现 REST API，并以程序调用它 |
+| 7 配置与持久化 | 05:50–07:05 | 展示部署、Service、数据库和扩容 YAML 的指定字段 | 镜像、探针、持久卷、Secret、HPA/KEDA |
+| 8 独立扩容 | 07:05–07:50 | frontend 2→3；显示 Deployments；恢复到 2 | 一个组件单独扩容，其他组件不必跟随 |
+| 9 取舍与安全 | 07:50–09:05 | 架构图；已有 HA/队列验证记录，只展示相关结果 | 业务价值、成本、安全边界、故障恢复证据 |
+| 10 仓库与结束 | 09:05–09:40 | GitHub 目录、Docker Hub 镜像；回 Overview | 源码和部署代码可查看、镜像已发布 |
+| 缓冲 | 09:40–10:00 | 不新增内容 | 自然停顿、加载和转场 |
 
-## 每段旁白要点
+## 三、开录前准备
 
-### 1. 开场：解决什么问题
+1. 启动 OrbStack，确认 `homehub` 应用及数据库就绪。不要在录像中安装 operator、构建镜像或初始化数据库。
+2. 若之前执行过清理脚本，先恢复应用，等所有依赖可用；录制过程中不要运行 cleanup。
+3. 打开以下标签/文件，避免录像中搜索：
+   - 浏览器 Overview、开发者工具 Network，启用 Preserve log。
+   - `docs/architecture/architecture.md` 和 `device-signals.md` 的图表预览。
+   - `frontend/src/App.jsx` 的 `saveTask()`。
+   - `services/task-service/app/main.py` 的任务 POST/PATCH 路由。
+   - 本计划第五节的 YAML。
+   - `docs/verification/database-ha.md`、`signal-scaling.json`。
+   - GitHub 仓库和 Docker Hub 的 frontend 镜像 Tags 页面。
+4. 浏览器与终端文字应在成片中清晰可读；关闭私人通知，不展示 `.secrets/`、Secret 内容或完整环境变量。
+5. 先录 20 秒检查麦克风音量、屏幕文字和鼠标可见性。
+6. 完整彩排一次并计时。语速自然，操作时允许停顿。正式录制使用新的演示名称，避免重复记录混淆。
 
-“HomeHub 是一个家庭协作应用，可以管理共享任务、登记模拟设备，并查看设备信号的传输状态。这个演示通过浏览器访问运行在 Kubernetes 中的服务。”
-
-不要花时间介绍配色或前端评分；这些不是本次作业的核心证据。
-
-### 2. 架构：按两条请求路径讲
-
-展示 `docs/architecture/architecture.md` 和 `docs/architecture/device-signals.md` 中的图，录制前在支持 Mermaid 的预览中打开。
-
-| 组件 | 职责和微服务实现 |
-|---|---|
-| React / Nginx frontend | 页面和同源 API 反向代理；NodePort 30080 |
-| household-service | 家庭与成员 REST API |
-| task-service | 任务 REST API、创建与完成状态持久化 |
-| device-service | 设备 REST API、模拟读数、采样计划、事务性 outbox |
-| Alertmanager collector/API | 领取设备待发送记录、持久化队列、提供状态 REST API |
-| signal-worker | 领取队列任务，将 JSON 发送到接收端；KEDA 按需启停 |
-| signal-receiver | HTTP REST 接收端，按消息 ID 去重并持久化 |
-| CloudNativePG / PostgreSQL | 单独运行的三实例数据库集群；每个实例一个 PVC |
-
-两条路径：
-
-1. 浏览器 → Nginx → Task API → Task 数据库 → JSON 响应。
-2. Device API 的状态和 outbox → collector → 持久队列 → worker → HTTP receiver → 去重存储。
-
-明确说明：这是**项目自定义的 Alertmanager，不是 Prometheus Alertmanager**。
-Collector、worker、receiver 复用同一镜像，但作为不同执行角色部署；因此镜像数量不等于 Deployment 数量。
-
-### 3. 任务操作：展示最完整的业务闭环
-
-- 新任务名称：`Prepare the weekly shopping list`。
-- Priority 选 High；日期可留空，减少录制操作。
-- 点击 Create task，说明 POST 请求创建记录。
-- 勾选完成，说明 PATCH 请求修改记录。
-- 点击 Completed，刷新，再确认这条任务仍处于完成状态。
-
-刷新只能证明服务端保存了数据，**不能单独证明数据库在基础设施重启后仍保留数据**。后面还要展示 PVC 配置及已完成的数据库恢复验证记录。
-
-### 4. 添加设备与 JSON
-
-准备以下表单值：
-
-| 字段 | 演示值 |
-|---|---|
-| Device name | Demo kitchen sensor |
-| Room | Kitchen |
-| Initial reading | 22.5 C |
-| Sampling interval | 30 秒 |
-
-保存后先展示设备卡片，再查看 Signal delivery。若默认三条中没有该设备，点击 Show all recent signals 后找到对应记录。
-
-展开 JSON，只指出 `id`、`time`、`source` 和 `data`。不要逐行念完整报文。
-
-旁白要点：
-
-- 设备创建时会立即生成第一条信号，不需要等完整采样周期。
-- 不同设备的采样时间错开；多个 collector 通过数据库领取任务，减少重复抓取。
-- 读数未变化时不反复发送，但会按规则发送心跳。
-- 队列保存在数据库中；失败会重试，接收端通过唯一 ID 去重。
-- 这是 **at-least-once 传输、接收端去重**，不能称为网络层 exactly-once，也不能保证任何灾难下都不丢数据。
-- JSON 是编码格式，不是加密。
-
-worker 可能需要等待 KEDA 激活。等待时先讲上述机制；若还没有 Delivered，展示 Pending 并说明后台处理中，稍后返回确认。不要把 Pending 解说成成功投递。
-
-### 5. REST 和日志
-
-录制前打开浏览器开发者工具 Network，保留一次任务 POST/PATCH 的记录。展示请求方法、路径、状态码和 JSON，即可证明页面实际调用了 API。
-
-代码编辑器预先定位：
-
-- `frontend/src/App.jsx`：`saveTask()` 中的 `fetch`，展示前端程序化调用 REST。
-- `services/task-service/app/main.py`：任务路由，展示自己实现的 REST API。
-
-随后在终端看 `task-service` 日志。多副本请求可能落到任意 Pod，使用后面的标签日志命令，不要只查看一个随机 Pod。
-
-### 6. YAML：只讲关键字段
-
-预先打开文件，避免现场查找：
-
-1. `kubernetes/frontend/deployment.yaml`：`image`、`replicas`、`imagePullPolicy`、NodePort `30080`。
-2. `kubernetes/task-service/deployment.yaml`：探针、资源限制、独立 Secret 引用。
-3. `kubernetes/postgres/postgres.yaml`：`instances: 3`、`storage.size`、同步复制、角色访问限制。
-4. `kubernetes/config/hpa.yaml`：不同 API 的 CPU 扩容范围。
-5. `kubernetes/config/signal-scaling.yaml`：队列深度指标、worker `0–4`、冷却时间。
-
-说明本机使用 `kubernetes-local/` overlay，允许数据库副本位于同一个节点；正式基础配置要求跨节点。**单机三副本不等于能抵御整台电脑故障。**
-
-### 7. 独立扩容
-
-现场扩容 frontend，它没有被当前 CPU HPA 管理，手动演示不容易被自动缩回。展示 frontend 的副本数变化，同时 task/device 等服务的目标副本数没有因这条命令一起改变。
-
-KEDA 的完整故障注入、积压、扩至多个 worker、恢复、缩零测试不安排现场完整运行，避免占满视频时间。可以展示 `docs/verification/signal-scaling.json`，明确说这是提前执行并保存的测试结果，展示其记录的日期。
-
-### 8. 收益、挑战和安全
-
-用一分钟讲四个重点：
-
-- **收益与业务价值**：任务和设备处理可以分别发布和扩容，高设备流量不必要求所有组件同时增加副本；数据库故障切换和持久队列有助于降低中断影响。
-- **代价**：服务发现、日志追踪、数据库连接和队列管理增加复杂度；三数据库实例与多个基础副本存在持续资源成本。家庭演示规模本身不需要这种架构，可以假设部署给大量家庭或设备群来说明扩容价值，但当前版本并未实现多租户隔离。
-- **已做安全措施**：数据库账号/数据库按服务隔离、限制角色权限、数据库 TLS 校验、Secret 引用、内部信号端点令牌。不要展示 Secret 内容、`.secrets/` 或完整环境变量。
-- **仍需改进**：用户认证授权、浏览器入口 HTTPS、NetworkPolicy、服务身份与 mTLS、异地备份。队列及去重记录还需要保留/归档策略；同步复制不是备份。
-
-展示 `docs/verification/database-ha.md` 或对应 JSON 中的数据库 Pod 故障恢复证据。明确说明“这是之前的测试记录”，不要在十分钟主片中临时删除数据库主节点。
-
-### 9. 仓库与镜像
-
-展示 GitHub：<https://github.com/kar1n1911/HomeHub>，指出 `frontend/`、`services/`、`kubernetes/` 和 `kubernetes-local/`。
-
-Docker Hub 已使用五个应用镜像：
-
-- `kar1n1911/homehub-frontend:0.2.2`
-- `kar1n1911/homehub-household:0.2.0`
-- `kar1n1911/homehub-task:0.2.0`
-- `kar1n1911/homehub-device:0.2.0`
-- `kar1n1911/homehub-alertmanager:0.2.0`
-
-可以展示 `docs/verification/release-images.json` 与 `release-node-pull.json` 作为发布和节点拉取的历史验证记录。录制前重新核对仓库和运行镜像，若版本更新，以当时实际结果为准。
-
-## 录制前准备，放在视频之外完成
-
-- 确认 OrbStack、Kubernetes、CloudNativePG、KEDA 已运行，浏览器页面可访问。
-- 不要在录制前执行 cleanup 脚本。如果之前清理过，先恢复应用并等待就绪。
-- 不在十分钟内安装 operator、构建镜像或等待数据库初始化。
-- 提前打开：首页、Network、终端、架构图预览、五个 YAML 文件、GitHub、镜像/故障验证记录。
-- 浏览器缩放到内容清晰可读的比例，终端字体适当放大，关闭私人通知。
-- 预演任务和设备操作；正式录制换一个可辨认的新名称，避免和旧记录混淆。
-- 检查录屏音频，先录 20 秒回放，确认文字和旁白都清楚。
-- 完成一次计时彩排。若超时，优先减少原理细节，不删掉任务闭环、日志和 YAML。
-
-### 终端准备命令
-
-在项目根目录执行。以下函数将每次操作固定到演示集群和命名空间，不修改全局 current-context：
+终端准备：
 
 ```bash
 cd /Users/coleanderson/Sync/HomeWorks/PA2577/HomeHub
 k() { kubectl --context orbstack -n homehub "$@"; }
 
-# 录制前检查
 kubectl config get-contexts orbstack
-k get deployments,pods,services,pvc
+k get deployments,pods
+k get services,pvc
 k get clusters.postgresql.cnpg.io
 k get hpa,scaledobjects
+```
 
-# 仅在应用先前已被清理时恢复；在开录前完成
+仅在应用之前被清理时，在开录前恢复：
+
+```bash
 kubectl --context orbstack apply -k kubernetes-local/
 k rollout status deployment/frontend --timeout=120s
 k rollout status deployment/task-service --timeout=120s
 k rollout status deployment/device-service --timeout=120s
 ```
 
-所有服务还应通过首页实际读写确认，单独 frontend Ready 不代表下游全部可用。
+随后实际打开页面验证读取与写入。frontend Ready 不代表所有下游依赖已就绪。
 
-### 录制时备用命令
+## 四、现场操作清单
+
+### Tasks：一条完整流程
+
+- 点击导航 **Tasks**，明确当前页只展示任务相关内容。
+- 点击 **Add task**。
+- Task name：`Prepare the weekly shopping list`；Priority：High；Due date 留空。
+- 点击 **Create task**，找到新任务并勾选。
+- 点击 **Completed**，确认任务在筛选结果中。
+- 刷新页面：仍在 Tasks，任务仍勾选。刷新后筛选默认恢复 All，不能说筛选也被保存了。
+- 回 Overview 指出汇总已更新，再进入 Devices。
+
+### Devices：登记并查看投递
+
+| 字段 | 填写内容 |
+|---|---|
+| Device name | Demo kitchen sensor |
+| Room | Kitchen |
+| Initial reading | 22.5 C |
+| Sampling interval (seconds) | 30 |
+
+- 保存后展示新设备卡片。
+- 滚动到 Signal delivery；若默认三条里没有新设备，展开 Show all recent signals。
+- 找到该设备的记录，指向状态并展开 JSON；只讲 `id`、`time`、`source`、`data`。
+- worker 从零启动可能有延迟。Pending 时讲队列机制，Delivered 后才说投递成功。
+- 刷新后仍在 Devices，设备信息继续存在。
+
+### REST 和日志
+
+展示 Network 中刚才的 `POST /api/tasks` 或 `PATCH /api/tasks/{id}` 的方法、请求 JSON、响应状态和响应内容，然后切换到对应前后端代码。
 
 ```bash
-# 部署现场证据
-k get deployments
-k get pods
-k get services,pvc
-k get clusters.postgresql.cnpg.io
-
-# HTTP REST 读取，可在 Network 不便展示时补充
-curl -sS http://localhost:30080/api/tasks | python3 -m json.tool
-
-# 显示所有任务服务副本的最近日志
 k logs -l app=task-service --all-containers=true --prefix=true --tail=10 --max-log-requests=10
+```
 
-# 仅扩容 frontend，随后恢复
+日志可能跨多个副本，因此按标签读取。若 Network 不便展示，可补充：
+
+```bash
+curl -sS http://localhost:30080/api/tasks | python3 -m json.tool
+```
+
+不要只展示 curl 而跳过自己写的 fetch 和 API 路由：作业还要求体现程序化调用及实现 REST 的能力。
+
+### 独立扩容
+
+frontend 未被当前 CPU HPA 管理，适合短时间手动演示：
+
+```bash
+k get deployments
 k scale deployment/frontend --replicas=3
 k rollout status deployment/frontend --timeout=60s
 k get deployments
@@ -205,30 +132,39 @@ k scale deployment/frontend --replicas=2
 k rollout status deployment/frontend --timeout=60s
 ```
 
-自动扩容状态可能正在变化；如出现 HPA 指标 `<unknown>`，录制前诊断 Metrics Server，不能声称 CPU 自动扩容已现场验证。
+操作前后对照副本数。该演示证明独立手动水平扩容；不能说这就是 CPU 自动扩容测试。其他服务可能因自身负载发生自动变化，应按实际输出解释。
 
-## 时间不足或临时异常时
+## 五、YAML 镜头清单
 
-| 情况 | 处理 |
-|---|---|
-| 信号暂时 Pending | 先讲队列与重试，再返回查看；如仍未成功，如实说明，修复后重录该段 |
-| worker 当前为 0 | 这是无积压时的设计行为，不是故障；collector/API 仍运行 |
-| 扩容耗时超过预算 | 提前预拉镜像并彩排；若仍失败，保留真实状态，排查后重录，不伪造就绪 |
-| 日志没有刚才的请求 | 查看所有 task-service 副本日志，确认使用的是 30080 页面 |
-| 视频超过 10 分钟 | 缩短开场、JSON 字段和细节解释；不删课程明确要求的日志/YAML/浏览器操作 |
-| 想展示更多故障实验 | 放到补充视频或文档；主片引用有日期的结果并明确证据来源 |
+| 文件 | 画面定位 | 讲解重点 |
+|---|---|---|
+| `kubernetes/frontend/deployment.yaml` | `image`、`replicas`、Service `nodePort` | Docker Hub 镜像、多个副本、外部入口 30080 |
+| `kubernetes/task-service/deployment.yaml` | probes、resources、Secret 引用 | 就绪/存活检查、资源预算、独立凭据 |
+| `kubernetes/postgres/postgres.yaml` | `instances`、`storage`、`synchronous` | 三实例、各自 PVC、同步复制要求 |
+| `kubernetes/config/hpa.yaml` | API target、min/max、CPU metric | 原有业务 API 独立自动扩容 |
+| `kubernetes/config/signal-scaling.yaml` | metric URL、min/max、cooldown | 根据队列深度启停 0–4 个 worker |
+| `kubernetes-local/kustomization.yaml` | anti-affinity patch | 本机演示允许数据库副本共处一台机器 |
 
-## 提交前核对
+共 75 秒，提前定位，每份只讲一两个字段，不逐行朗读。HPA 若显示 `<unknown>`，应在彩排时排查 Metrics Server，不应声称该机制已现场验证。
 
-- [ ] 成片为 5–10 分钟，建议约 9:40。
-- [ ] 说明应用 idea、组件职责和交互。
-- [ ] 真实展示 Kubernetes 资源和浏览器访问。
-- [ ] 完成创建任务 → 标记完成 → 刷新仍存在。
-- [ ] 展示添加设备和对应的 JSON 信号状态。
-- [ ] 展示 REST 调用、日志和 Kubernetes YAML。
-- [ ] 解释独立扩容、持久化、安全、成本与局限。
-- [ ] 源码仓库链接包含 Kubernetes 部署代码。
-- [ ] 视频链接可由老师访问；用未登录窗口检查共享权限。
-- [ ] 在正式报告中填写视频链接，保留本计划作为录制辅助材料。
+## 六、证据边界与异常处理
 
-本计划不替代最终视频或正式报告。视频录制、上传和最终链接提交仍需完成。
+- 刷新后数据存在说明保存到了服务端；持久卷配置及数据库恢复测试才补充重启后持久化的证据。
+- 数据库 HA 记录是在独立测试环境中完成的历史测试，曾有 API 中断；恢复读取约用了 192 秒。不是当前视频现场故障切换，也不是整机故障测试。
+- `signal-scaling.json` 是提前执行的积压、恢复和扩缩容验证记录。展示日期及实际字段，不把它说成本次录像产生的结果。
+- 现场信号未投递成功时如实说明 Pending。可先完成其他段落后返回；如持续失败，修复后重录。
+- 不在主片里临时删除数据库主节点、运行完整故障注入脚本或等待 scale-to-zero 全流程。
+- 自定义 Alertmanager 不是 Prometheus Alertmanager；JSON 编码不是加密；至少一次传输不等于 exactly-once。
+- 单节点上的三个数据库 Pod 不能抵御整台主机故障；同步复制与 PVC 不能替代异地备份。
+- 如果超时，缩短开场、JSON 字段讲解和配置细节，保留浏览器操作、日志、YAML、安全讨论。
+
+## 七、提交清单
+
+- [ ] 视频 5–10 分钟，画面文字、旁白清晰。
+- [ ] 展示三页面导航、任务闭环、设备入口。
+- [ ] 展示 Kubernetes 资源、REST 代码与请求、日志、YAML。
+- [ ] 解释扩容、持久化、安全、成本和系统局限。
+- [ ] 给出源码与部署仓库：<https://github.com/kar1n1911/HomeHub>。
+- [ ] 展示 Docker Hub 镜像：frontend 0.2.2；household/task/device/alertmanager 0.2.0，均在 `kar1n1911` 下。
+- [ ] 用未登录窗口验证最终视频链接对老师可访问。
+- [ ] 在正式报告中填入视频链接；计划与台词不能代替实际录制和提交。
