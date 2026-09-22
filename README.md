@@ -2,6 +2,10 @@
 
 HomeHub is a microservice-based household management application for Kubernetes coursework. A React interface displays household members, shared tasks, and simulated smart devices. FastAPI services provide household, task, device, and durable signal-delivery REST APIs. The browser supports task completion and device registration.
 
+## Report
+
+The [formal report](docs/report/HomeHub-Report.md) covers the software description, architecture design, and benefits, challenges and security discussion for the first three assignment deliverables.
+
 ## Architecture
 
 ```text

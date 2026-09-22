@@ -1,22 +1,7 @@
-# Coursework report outline
+# Coursework report
 
-## 1. Software description
+The completed report for deliverables 1–3 is [HomeHub: A Single-Node Kubernetes Microservice Application](HomeHub-Report.md).
 
-Describe HomeHub as a household coordination interface for member presence, chores, and simulated smart devices. Add screenshots and a short use-case walkthrough after the interactive forms are complete.
+It covers the implemented software, component-to-microservice mapping, REST and asynchronous interactions, single-node deployment and persistence, verified results, benefits, challenges, business implications, implemented security controls and remaining mitigations.
 
-## 2. Architecture design
-
-Use `docs/architecture/architecture.md` as the source. Include the component diagram, service responsibilities, REST endpoints, Kubernetes resource mapping, and architecture patterns.
-
-## 3. Benefits, challenges, and security
-
-Discuss independent deployment and scaling, fault isolation, clear ownership, operational complexity, shared-database coupling, distributed debugging, eventual consistency options, authentication, authorization, secrets, network isolation, image security, and backups.
-
-## 4. Repository and deployment
-
-Add the public Git repository link and Docker Hub image links. Explain the Kustomize deployment command and the persistent database volume.
-
-## 5. Video evidence
-
-Reference the final recording and use the checklist in `docs/video/demo-script.md`.
-
+The repository-access arrangement and the 5–10 minute recording remain separate submission items. See the [video plan](../video/demo-script.md) and [narration](../video/narration-zh.md).

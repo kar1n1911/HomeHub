@@ -64,7 +64,7 @@ A single household rarely justifies this architecture. The coursework scenario a
 
 Run `python3 scripts/verify-db-ha.py --local-images` on OrbStack to build current APIs and test a disposable Kubernetes cluster. It checks six API pods, verified TLS, denied cross-database access and role escalation, committed task retention across primary Pod deletion, a subsequent write, and API Pod continuity. It deletes its test namespace on success and leaves failed runs for diagnosis. This is a destructive test only inside its newly created `homehub-ha-check-*` namespace.
 
-The release manifests use application images `0.2.0`. Local-image verification alone does not establish publication; consult the separate signal/image verification records for registry and node-pull evidence.
+The release manifests use frontend `0.2.2` and backend application images `0.2.0`. Local-image verification alone does not establish publication; consult the separate signal/image verification records for registry and node-pull evidence.
 
 - [Operator installation](https://cloudnative-pg.io/docs/1.30/installation_upgrade/)
 - [Replication and durability](https://cloudnative-pg.io/docs/1.30/replication/)
