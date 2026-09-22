@@ -41,6 +41,29 @@ docker compose down
 
 This retains the new `homehub-isolated-data` database volume. The old `homehub-data` volume is not mounted or deleted. The new databases start fresh unless you explicitly migrate data; see the architecture document. Do not delete password files while retaining their database volume, as newly generated passwords will not match the stored roles. `docker compose down -v` deletes the current development database and should only be used deliberately.
 
+## Quick cleanup
+
+Run from the repository root:
+
+```bash
+./scripts/cleanup.sh --dry-run  # preview only
+./scripts/cleanup.sh            # stop both HomeHub environments
+./scripts/cleanup.sh compose    # Compose containers and network only
+./scripts/cleanup.sh k8s        # Kubernetes application workloads only
+```
+
+The script targets Docker context `orbstack`, Compose project `homehub`, and Kubernetes context `orbstack`,
+namespace `homehub`. Use `--context NAME` to explicitly select another cluster,
+and `--docker-context NAME` for another Docker engine.
+It removes application Deployments and autoscalers so Pods do not recreate
+immediately. PostgreSQL remains running in Kubernetes; PVCs, Secrets, Services,
+operators, Compose volumes and images are retained. It does not perform a global
+Docker prune. Pending signals remain stored and resume processing after restart.
+
+Restart with `docker compose up -d` and/or
+`kubectl --context orbstack apply -k kubernetes-local`. Use your selected context
+when restarting a different cluster. Retain `.secrets/` alongside database data.
+
 ## REST APIs
 
 | Service | Method | Endpoint | Purpose |
