@@ -22,7 +22,7 @@ Browser -> React / Nginx (NodePort 30080)
 
 Device signals additionally flow through a durable outbox → Alertmanager queue → local HTTP receiver. KEDA scales sending workers from zero to four independently of collection. See [device signal design and failure boundaries](docs/architecture/device-signals.md).
 
-Each service has its own database and restricted credential. Kubernetes runs three PostgreSQL instances with automatic failover. The default deployment requires different nodes for database instances. The local overlay supports a one-node demonstration and does not protect against loss of the host.
+Each service has its own database and restricted credential. Kubernetes runs three PostgreSQL instances with automatic failover. The supported deployment is a single OrbStack node. All three database instances run on that host; this supports database-process recovery but does not protect against loss of the host.
 
 ## Local development with Compose
 
@@ -99,7 +99,7 @@ The publishing script targets Linux AMD64 and ARM64 by default. CloudNativePG an
 
 ## Deploy to Kubernetes
 
-### OrbStack / local single-node deployment (default)
+### Single-node OrbStack deployment
 
 Run this same command for the first deployment and after cleanup:
 
@@ -107,8 +107,7 @@ Run this same command for the first deployment and after cleanup:
 ./scripts/deploy-k8s.sh
 ```
 
-The script explicitly targets context `orbstack` and the `kubernetes-local/`
-overlay. It checks node/storage prerequisites, installs missing CloudNativePG,
+The script explicitly targets context `orbstack` and the single-node `kubernetes/` configuration. It checks node/storage prerequisites, installs missing CloudNativePG,
 KEDA and Metrics Server components, preserves existing database credentials, and
 waits for database, application and autoscaling readiness. It does not report
 success merely because manifests were accepted. Kubernetes 1.34+ is required by
@@ -140,24 +139,32 @@ A repeatable cleanup/redeploy cycle, preserving data:
 Cleanup retains database Pods, volumes, Secrets and infrastructure operators.
 Compose can remain stopped; port 8080 is unrelated to this Kubernetes deployment.
 
-### Multi-node deployment (explicit choice)
+### Verified single-node result
 
-```bash
-./scripts/deploy-k8s.sh --context YOUR_CLUSTER --profile multi-node
-```
+Checked on 2026-09-22 after applying the unified single-node configuration:
 
-This uses `kubernetes/`, which requires at least three Ready schedulable nodes
-and enforces database separation across nodes. The script refuses insufficient
-node counts before changing resources. Node taints and available capacity must
-also permit scheduling. Failure tolerance still depends on independent storage
-and an available control plane. Do not apply the multi-node base to one-node
-OrbStack: its required anti-affinity prevents the database reaching full readiness.
+| Component | Observed result |
+|---|---|
+| OrbStack node | One Ready node |
+| Six always-on application Deployments | Each 2/2 ready |
+| PostgreSQL | 3/3 ready on the same node; cluster healthy |
+| Database storage | Three Bound PVCs, 1 GiB each |
+| CPU HPA | Numeric CPU metrics available for all three business APIs |
+| Signal worker | 0/0 while idle, managed by KEDA |
+| Reapplying deployment | Health gate passed; existing credentials retained |
 
-If the base was accidentally applied to OrbStack, rerun `./scripts/deploy-k8s.sh`.
-It reapplies preferred local affinity, and CloudNativePG reconciles the database
-Pods without deleting PVCs or resetting credentials. CPU HPAs require Metrics
-Server; KEDA's external metrics alone do not provide CPU utilization. See the
-[official Metrics Server requirements](https://github.com/kubernetes-sigs/metrics-server#requirements).
+The preceding cleanup/redeployment validation also confirmed preservation of
+business data, PVC identities and credentials; see
+[the recorded checks](docs/verification/redeployment-data.json).
+These are observed results, not a claim of host-level high availability.
+
+Only the single-node deployment is supported in this coursework version. There
+is no deployment-profile switch. `kubernetes-local/` remains a compatibility alias
+for older commands and renders the same configuration as `kubernetes/`.
+
+CPU HPAs use Metrics Server, while KEDA uses queue-depth metrics. Replica scaling
+on this one node increases process concurrency, not the capacity of the physical
+host. All replicas share the host's CPU, memory, storage and control plane.
 
 Each database instance receives a separate 1 GiB PVC. `homehub-db-rw` follows the
 primary. Synchronous replication requires one standby; writes wait/fail when
@@ -187,8 +194,8 @@ This coursework version includes database-backed APIs, sample data, independent 
 - `frontend/`: React and Nginx
 - `services/`: independently containerized REST APIs and signal delivery roles
 - `database/init/`: Compose-only database/role initialization
-- `kubernetes/`: multi-node deployment with enforced database separation across nodes
-- `kubernetes-local/`: one-node demonstration overlay
+- `kubernetes/`: supported single-node Kubernetes deployment
+- `kubernetes-local/`: compatibility alias for the same deployment
 - `scripts/`: credential creation, operator installation, validation
 - `tests/`: isolated database integration tests
 - `docs/architecture/`: design, security, tradeoffs, migration

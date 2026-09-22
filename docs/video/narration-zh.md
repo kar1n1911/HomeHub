@@ -102,7 +102,7 @@ Overview 的汇总也能反映保存后的任务状态。这说明不同页面�
 
 这份 HPA 配置让不同业务 API 按各自 CPU 负载扩容。另一份 KEDA 配置根据未投递消息数量，将发送 worker 调整到零到四个副本。collector 保持运行，所以 worker 为零时仍然能够发现新任务。
 
-最后，本地 overlay 放宽了数据库 Pod 的跨节点要求，只用于单机演示。正式配置要求数据库实例分散到不同节点。
+当前部署固定使用一个 OrbStack 节点，三个数据库实例都可以在这台机器上运行。增加应用副本可以提高处理并发，但所有副本仍共享这台机器的资源。
 
 ## 8｜07:05–07:50｜独立水平扩容
 
@@ -132,7 +132,7 @@ Overview 的汇总也能反映保存后的任务状态。这说明不同页面�
 
 ## 10｜09:05–09:40｜仓库、镜像与结束
 
-[显示 GitHub 的 frontend、services、kubernetes、kubernetes-local，再展示 Docker Hub 镜像标签，回 Overview。]
+[显示 GitHub 的 frontend、services、kubernetes，再展示 Docker Hub 镜像标签，回 Overview。]
 
 项目源码和 Kubernetes 部署配置都在这个 GitHub 仓库中。应用使用的五个镜像已经推送到 kar1n1911 的 Docker Hub 仓库，供 Kubernetes 拉取。
 

@@ -1,5 +1,6 @@
 # Cleanup and redeployment regression
 
+> Historical test record. Current deployment is single-node only; any profile/base distinctions below describe the configuration at the time of that test, not current deployment instructions.
 Verified 2026-09-22 against local OrbStack (one Ready node, Kubernetes 1.35.6).
 
 ## Failure reproduced from the reported workflow

@@ -1,5 +1,6 @@
 # Database HA and credential-isolation verification
 
+> Historical test record. Current deployment is single-node only; any profile/base distinctions below describe the configuration at the time of that test, not current deployment instructions.
 The integration run completed on 2026-09-20. Its result and cleanup were rechecked on 2026-09-21 after the interactive session resumed. Machine-readable evidence is in [database-ha.json](database-ha.json).
 
 ## Configuration exercised

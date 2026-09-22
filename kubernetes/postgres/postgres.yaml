@@ -9,7 +9,7 @@ spec:
   enableSuperuserAccess: false
   affinity:
     enablePodAntiAffinity: true
-    podAntiAffinityType: required
+    podAntiAffinityType: preferred
     topologyKey: kubernetes.io/hostname
   storage:
     size: 1Gi

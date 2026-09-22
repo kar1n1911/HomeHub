@@ -1,15 +1,5 @@
+# Compatibility alias for earlier local commands; same single-node configuration.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ../kubernetes
-patches:
-  # Local demonstration only: all three instances may share one machine.
-  - target:
-      group: postgresql.cnpg.io
-      version: v1
-      kind: Cluster
-      name: homehub-db
-    patch: |-
-      - op: replace
-        path: /spec/affinity/podAntiAffinityType
-        value: preferred

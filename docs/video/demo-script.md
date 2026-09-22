@@ -143,7 +143,7 @@ k rollout status deployment/frontend --timeout=60s
 | `kubernetes/postgres/postgres.yaml` | `instances`、`storage`、`synchronous` | 三实例、各自 PVC、同步复制要求 |
 | `kubernetes/config/hpa.yaml` | API target、min/max、CPU metric | 原有业务 API 独立自动扩容 |
 | `kubernetes/config/signal-scaling.yaml` | metric URL、min/max、cooldown | 根据队列深度启停 0–4 个 worker |
-| `kubernetes-local/kustomization.yaml` | anti-affinity patch | 本机演示允许数据库副本共处一台机器 |
+| `kubernetes/postgres/postgres.yaml` | preferred anti-affinity | 三个数据库实例都部署在同一节点 |
 
 共 75 秒，提前定位，每份只讲一两个字段，不逐行朗读。HPA 若显示 `<unknown>`，应在彩排时排查 Metrics Server，不应声称该机制已现场验证。
 
