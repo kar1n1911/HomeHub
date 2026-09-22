@@ -223,3 +223,30 @@ footer { display: flex; justify-content: space-between; gap: 20px; padding: 22px
   .task-row { grid-template-columns: 26px minmax(0, 1fr); }
   .priority { grid-column: 2; justify-self: start; }
 }
+
+/* Page-level layouts share the existing theme and component tokens. */
+.app-shell { min-height: 100dvh; display: flex; flex-direction: column; }
+.app-shell > main { flex: 1; }
+h1:focus { outline: none; }
+.overview-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.overview-panel .panel-heading { flex-wrap: wrap; }
+a.text-button { text-decoration: none; }
+.overview-list { padding: 0 24px 20px; }
+.overview-row { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 18px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.overview-row > :first-child { min-width: 0; overflow-wrap: anywhere; }
+.overview-row > :last-child { flex-shrink: 0; }
+.overview-row small { display: block; margin-top: 5px; color: var(--muted); }
+.tasks-page { max-width: 960px; margin-inline: auto; }
+.devices-page { display: grid; gap: 24px; }
+.devices-page .device-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 1023px) {
+  .devices-page .device-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 767px) {
+  .overview-grid { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .overview-list { padding-inline: 18px; }
+  .overview-row { font-size: 13px; }
+}
+@media (max-width: 359px) {
+  .devices-page .device-grid { grid-template-columns: minmax(0, 1fr); }
+}

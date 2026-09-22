@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: kar1n1911/homehub-frontend:0.2.1
+          image: kar1n1911/homehub-frontend:0.2.2
           imagePullPolicy: Always
           ports:
             - containerPort: 80

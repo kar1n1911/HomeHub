@@ -54,7 +54,7 @@ export default function Devices({ devices, onAdded }) {
   }
   function field(event) { setDraft(current => ({ ...current, [event.target.name]: event.target.value })); }
   return <>
-    <section className="panel devices-panel" id="devices">
+    <section className="panel devices-panel">
       <div className="panel-heading">
         <div><h2>Devices</h2><p>Your home, room by room</p></div>
         <button className="secondary-button" ref={addButton} aria-expanded={open} aria-controls="new-device-form" onClick={() => { if (open) close(); else setOpen(true); setError(''); }} disabled={busy}>

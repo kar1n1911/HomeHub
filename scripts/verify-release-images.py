@@ -13,7 +13,7 @@ def run(*args):
     return subprocess.check_output(args,text=True)
 
 def inspect(service):
-    version='0.2.1' if service=='frontend' else '0.2.0'
+    version='0.2.2' if service=='frontend' else '0.2.0'
     reference=f'kar1n1911/homehub-{service}:{version}'
     raw=json.loads(run('docker','buildx','imagetools','inspect','--raw',reference))
     platforms=sorted({m['platform']['os']+'/'+m['platform']['architecture'] for m in raw['manifests'] if m['platform']['os']=='linux'})

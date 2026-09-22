@@ -9,17 +9,17 @@
 演示环境固定为本地 OrbStack Kubernetes，页面为 `http://localhost:30080/`。
 Compose 的 `http://localhost:8080/` 是另一套数据，本视频不要混用。
 
-当前发布：前端 `0.2.1`，后端 `0.2.0`；Docker Hub 用户 `kar1n1911`。
+当前发布：前端 `0.2.2`，后端 `0.2.0`；Docker Hub 用户 `kar1n1911`。
 
 ## 分钟安排与现场动作
 
 | 时间 | 画面与动作 | 要讲清楚的内容 | 对应证据 |
 |---|---|---|---|
-| 00:00–00:40 | 打开 HomeHub 首页，指出任务、设备和信号三个区域 | 家庭成员用一个页面管理共享任务与模拟设备；设备读数由后台采集并发送给 HTTP 接收端 | 软件用途、浏览器访问 |
+| 00:00–00:40 | 打开 Overview 首页，指出汇总及 Tasks、Devices 页面入口 | 家庭成员用一个页面管理共享任务与模拟设备；设备读数由后台采集并发送给 HTTP 接收端 | 软件用途、浏览器访问 |
 | 00:40–01:40 | 展示架构图，沿浏览器到数据库、设备到接收端两条路径讲解 | 各服务职责、REST、独立部署；数据库单独运行，业务拥有独立数据库和账号 | 架构与组件映射 |
 | 01:40–02:30 | 终端显示 context、Deployments、Pods、Services、PVC、数据库集群 | 当前确实在 Kubernetes 运行；NodePort 是外部入口；三个数据库实例及各自持久卷 | Kubernetes、持久化、外部访问 |
-| 02:30–04:00 | 浏览器 Add task，创建任务，勾选完成，切换 Completed，刷新确认仍完成 | 请求经 Nginx 到 Task REST API，写入 PostgreSQL；刷新后从服务端重新读取 | 提供/调用 REST、真实业务流程 |
-| 04:00–05:05 | Add device，填写名称、房间、读数和采样间隔，保存；展开对应信号 JSON，刷新 | Device API 保存设备和待发送记录；后台错峰采样、抑制不变读数；JSON 携带唯一 ID 并投递 | 设备入口、服务间交互 |
+| 02:30–04:00 | 切换 Tasks，点击 Add task，创建任务，勾选完成，切换 Completed，刷新确认仍完成 | 请求经 Nginx 到 Task REST API，写入 PostgreSQL；刷新后从服务端重新读取 | 提供/调用 REST、真实业务流程 |
+| 04:00–05:05 | 切换 Devices，点击 Add device，填写名称、房间、读数和采样间隔，保存；展开对应信号 JSON，刷新 | Device API 保存设备和待发送记录；后台错峰采样、抑制不变读数；JSON 携带唯一 ID 并投递 | 设备入口、服务间交互 |
 | 05:05–05:55 | 查看浏览器 Network 中的一次 API 请求，展示相关 fetch 代码和 API 日志 | 前端以代码调用 REST；服务提供 JSON 接口；日志能对应刚才的操作 | 编程调用 REST、日志输出 |
 | 05:55–07:15 | 编辑器依次展示 frontend、task-service、数据库和扩容 YAML 的关键字段 | Deployment/Service、探针、Secret 引用、PVC、CPU HPA、KEDA 队列扩容 | YAML 讲解、部署细节 |
 | 07:15–08:05 | 单独将 frontend 从 2 扩至 3，展示其他服务副本数未被一起修改；恢复 2 | 应用副本无本地业务状态，因此可独立水平扩容；不同服务按各自负载扩容 | 独立扩容现场证据 |
@@ -140,7 +140,7 @@ KEDA 的完整故障注入、积压、扩至多个 worker、恢复、缩零测�
 
 Docker Hub 已使用五个应用镜像：
 
-- `kar1n1911/homehub-frontend:0.2.1`
+- `kar1n1911/homehub-frontend:0.2.2`
 - `kar1n1911/homehub-household:0.2.0`
 - `kar1n1911/homehub-task:0.2.0`
 - `kar1n1911/homehub-device:0.2.0`

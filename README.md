@@ -64,6 +64,11 @@ Restart with `docker compose up -d` and/or
 `kubectl --context orbstack apply -k kubernetes-local`. Use your selected context
 when restarting a different cluster. Retain `.secrets/` alongside database data.
 
+The interface has three bookmarkable pages: `/#overview`, `/#tasks`, and
+`/#devices`. Overview summarizes current data; Tasks provides task creation and
+completion; Devices provides registration and signal delivery history. Browser
+back/forward and reload preserve the selected page.
+
 ## REST APIs
 
 | Service | Method | Endpoint | Purpose |
@@ -84,7 +89,7 @@ Every API exposes `/health` for liveness and `/ready` for database-backed readin
 
 ## Build and publish application images
 
-The application manifests use frontend `0.2.1` and backend release `0.2.0` under `kar1n1911` on Docker Hub. Five images cover frontend, household, task, device, and Alertmanager; collector, worker and receiver use the same Alertmanager image with separate execution roles and database access. To reproduce the release with an existing Docker Hub login:
+The application manifests use frontend `0.2.2` and backend release `0.2.0` under `kar1n1911` on Docker Hub. Five images cover frontend, household, task, device, and Alertmanager; collector, worker and receiver use the same Alertmanager image with separate execution roles and database access. To reproduce the release with an existing Docker Hub login:
 
 ```bash
 ./scripts/publish-images.sh

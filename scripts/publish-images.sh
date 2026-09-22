@@ -7,7 +7,7 @@ docker buildx inspect homehub-release >/dev/null 2>&1 || docker buildx create --
 for service in frontend household task device alertmanager; do
   context="services/$service-service"
   release=0.2.0
-  if [ "$service" = frontend ]; then context=frontend; release=0.2.1; fi
+  if [ "$service" = frontend ]; then context=frontend; release=0.2.2; fi
   docker buildx build --builder homehub-release --platform "${PLATFORMS:-linux/amd64,linux/arm64}" \
     --tag "kar1n1911/homehub-$service:${VERSION:-$release}" --push "$context"
 done

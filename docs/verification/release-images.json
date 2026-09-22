@@ -1,9 +1,9 @@
 {
-  "checked_at": "2026-09-22T05:42:46.031878+00:00",
+  "checked_at": "2026-09-22T10:30:58.721121+00:00",
   "images": [
     {
-      "image": "kar1n1911/homehub-frontend:0.2.1",
-      "digest": "sha256:dd4c898f91665d668d23f3959e7c16cc2b313ea8a911142950c840bae3f8f4c5",
+      "image": "kar1n1911/homehub-frontend:0.2.2",
+      "digest": "sha256:fde8f132deaa10989c8257d924b8245fc00ecfc877cf3baac7a6de089656eac9",
       "platforms": [
         "linux/amd64",
         "linux/arm64"

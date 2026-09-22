@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-09-22T05:42:46.031878+00:00",
+  "checked_at": "2026-09-22T10:30:58.721121+00:00",
   "context": "orbstack",
   "image_pull_policy": "Always",
   "pods": [
@@ -32,17 +32,17 @@
       "ready": true
     },
     {
-      "pod": "frontend-665576f967-cfrnj",
+      "pod": "frontend-66f4c8f4dd-44nwx",
       "deployment": "frontend",
-      "image": "kar1n1911/homehub-frontend:0.2.1",
-      "image_id": "docker-pullable://kar1n1911/homehub-frontend@sha256:dd4c898f91665d668d23f3959e7c16cc2b313ea8a911142950c840bae3f8f4c5",
+      "image": "kar1n1911/homehub-frontend:0.2.2",
+      "image_id": "docker-pullable://kar1n1911/homehub-frontend@sha256:fde8f132deaa10989c8257d924b8245fc00ecfc877cf3baac7a6de089656eac9",
       "ready": true
     },
     {
-      "pod": "frontend-665576f967-pb6gn",
+      "pod": "frontend-66f4c8f4dd-6gckv",
       "deployment": "frontend",
-      "image": "kar1n1911/homehub-frontend:0.2.1",
-      "image_id": "docker-pullable://kar1n1911/homehub-frontend@sha256:dd4c898f91665d668d23f3959e7c16cc2b313ea8a911142950c840bae3f8f4c5",
+      "image": "kar1n1911/homehub-frontend:0.2.2",
+      "image_id": "docker-pullable://kar1n1911/homehub-frontend@sha256:fde8f132deaa10989c8257d924b8245fc00ecfc877cf3baac7a6de089656eac9",
       "ready": true
     },
     {
@@ -69,6 +69,13 @@
     {
       "pod": "signal-receiver-5b6464ddbc-tfwbk",
       "deployment": "signal-receiver",
+      "image": "kar1n1911/homehub-alertmanager:0.2.0",
+      "image_id": "docker-pullable://kar1n1911/homehub-alertmanager@sha256:9ac5d03e471820a42c10b4f5935c1ab2c7fd545cf71c2cd63e033e1cebcb3c9f",
+      "ready": true
+    },
+    {
+      "pod": "signal-worker-6546c546dd-brzzb",
+      "deployment": "signal-worker",
       "image": "kar1n1911/homehub-alertmanager:0.2.0",
       "image_id": "docker-pullable://kar1n1911/homehub-alertmanager@sha256:9ac5d03e471820a42c10b4f5935c1ab2c7fd545cf71c2cd63e033e1cebcb3c9f",
       "ready": true

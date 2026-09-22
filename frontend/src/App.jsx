@@ -58,18 +58,28 @@ function Status({ state }) {
   );
 }
 
+const pages = {
+  overview: { title: "Overview", description: "People, shared tasks, and the devices that keep home running." },
+  tasks: { title: "Tasks", description: "Plan shared work, track progress, and make room for what matters." },
+  devices: { title: "Devices", description: "Manage your connected devices and follow every signal." }
+};
+function currentPage() {
+  const name = window.location.hash.slice(1);
+  return Object.hasOwn(pages, name) ? name : "overview";
+}
+
 function App() {
   const [theme, setTheme] = useState(() => {
     try { const saved = localStorage.getItem("homehub-theme"); return ["light", "dark"].includes(saved) ? saved : "system"; } catch { return "system"; }
   });
-  const [activeSection, setActiveSection] = useState(() => window.location.hash.slice(1) || "overview");
+  const [activeSection, setActiveSection] = useState(currentPage);
   const [taskFilter, setTaskFilter] = useState("all");
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     try { localStorage.setItem("homehub-theme", theme); } catch { /* Storage may be unavailable. */ }
   }, [theme]);
   useEffect(() => {
-    const update = () => setActiveSection(window.location.hash.slice(1) || "overview");
+    const update = () => setActiveSection(currentPage());
     window.addEventListener("hashchange", update);
     return () => window.removeEventListener("hashchange", update);
   }, []);
@@ -86,6 +96,14 @@ function App() {
   const createInFlight = useRef(false);
   const updatesInFlight = useRef(new Set());
   const addTaskButton = useRef(null);
+  const pageHeading = useRef(null);
+  useEffect(() => {
+    document.title = `${pages[activeSection].title} | HomeHub`;
+    if (state === "ready") {
+      window.scrollTo(0, 0);
+      pageHeading.current?.focus({ preventScroll: true });
+    }
+  }, [activeSection, state]);
 
   function closeTaskForm() {
     setShowTaskForm(false);
@@ -197,7 +215,7 @@ function App() {
 
   return (
     <div className="app-shell">
-      <a className="skip-link" href="#overview">Skip to content</a>
+      <a className="skip-link" href={`#${activeSection}`} onClick={(event) => { event.preventDefault(); pageHeading.current?.focus(); }}>Skip to content</a>
       <header className="topbar">
         <a className="brand" href="#overview" aria-label="HomeHub home">
           <span className="brand-mark"><House size={22} weight="fill" /></span>
@@ -205,7 +223,7 @@ function App() {
         </a>
         <nav aria-label="Main navigation">
           {[["Overview", "overview"], ["Tasks", "tasks"], ["Devices", "devices"]].map(([label, id]) => (
-            <a key={id} className={activeSection === id ? "active" : ""} href={`#${id}`} aria-current={activeSection === id ? "location" : undefined}>{label}</a>
+            <a key={id} className={activeSection === id ? "active" : ""} href={`#${id}`} aria-current={activeSection === id ? "page" : undefined}>{label}</a>
           ))}
         </nav>
         <div className="header-controls">
@@ -218,22 +236,22 @@ function App() {
         </div>
       </header>
 
-      <main id="overview" tabIndex={-1}>
+      <main id="main-content" tabIndex={-1}>
         <section className="intro">
           <div>
-            <p className="eyebrow">Household overview</p>
-            <h1>{data.household?.name || "Your home"}</h1>
-            <p className="lede">People, shared tasks, and the devices that keep home running.</p>
+            <p className="eyebrow">{activeSection === "overview" ? "Household overview" : data.household?.name || "Your home"}</p>
+            <h1 ref={pageHeading} tabIndex={-1}>{activeSection === "overview" ? data.household?.name || "Your home" : pages[activeSection].title}</h1>
+            <p className="lede">{pages[activeSection].description}</p>
           </div>
-          <button className="primary-button" type="button" ref={addTaskButton}
+          {activeSection === "tasks" && <button className="primary-button" type="button" ref={addTaskButton}
             aria-expanded={showTaskForm} aria-controls="new-task-form"
             disabled={state !== "ready" || creating}
             onClick={() => setShowTaskForm(true)}>
             <Plus size={18} weight="bold" /> Add task
-          </button>
+          </button>}
         </section>
 
-        {showTaskForm && (
+        {activeSection === "tasks" && showTaskForm && (
           <form id="new-task-form" className="task-form panel" aria-labelledby="new-task-heading" onSubmit={createTask} aria-busy={creating}>
             <h2 id="new-task-heading">Create a task</h2>
             <fieldset disabled={creating}>
@@ -264,7 +282,7 @@ function App() {
             </fieldset>
           </form>
         )}
-        <p className="save-notice" role="status" aria-live="polite">{notice}</p>
+        <p className="save-notice" role="status" aria-live="polite">{activeSection === "tasks" ? notice : ""}</p>
 
         {state === "error" && (
           <section className="error-panel" role="alert">
@@ -277,6 +295,7 @@ function App() {
           </section>
         )}
 
+        {activeSection === "overview" && <>
         <section className="metrics" aria-label="Household summary">
           <article>
             <span className="icon-box"><UsersThree size={23} /></span>
@@ -292,8 +311,24 @@ function App() {
           </article>
         </section>
 
-        <div className="content-grid">
-          <section className="panel tasks-panel" id="tasks">
+        <div className="overview-grid">
+          <section className="panel overview-panel">
+            <div className="panel-heading"><div><h2>Up next</h2><p>{data.tasks.length - completedTasks} tasks left to do</p></div><a className="text-button" href="#tasks">View tasks →</a></div>
+            <div className="overview-list">{data.tasks.filter(task => !task.completed).slice(0, 3).map(task => <div className="overview-row" key={task.id}><span>{task.title}</span><span className={`priority ${task.priority}`}>{task.priority}</span></div>)}
+              {data.tasks.every(task => task.completed) && <p className="device-hint">You’re all caught up. Plan your next task on the Tasks page.</p>}
+            </div>
+          </section>
+          <section className="panel overview-panel">
+            <div className="panel-heading"><div><h2>Connected home</h2><p>{onlineDevices} of {data.devices.length} devices online</p></div><a className="text-button" href="#devices">View devices →</a></div>
+            <div className="overview-list">{data.devices.slice(0, 3).map(device => <div className="overview-row" key={device.id}><div><strong>{device.name}</strong><small>{device.room}</small></div><span>{device.value}</span></div>)}
+              {!data.devices.length && <p className="device-hint">Add your first device on the Devices page.</p>}
+            </div>
+          </section>
+        </div>
+        </>}
+
+        {activeSection === "tasks" && <div className="tasks-page">
+          <section className="panel tasks-panel">
             <div className="panel-heading">
               <div><h2>Shared tasks</h2><p>Track your household's shared work</p></div>
               <span className="task-count">{data.tasks.length} tasks</span>
@@ -326,8 +361,10 @@ function App() {
             ) : <div className="empty-state"><CheckCircle size={30} aria-hidden="true" /><h3>{taskFilter === "active" ? "You’re all caught up" : taskFilter === "completed" ? "No completed tasks yet" : "Make room for your first task"}</h3><p>{taskFilter === "completed" ? "Tick a task when it’s done. It will appear here." : "Use Add task to plan what needs doing at home."}</p></div>}
           </section>
 
+        </div>}
+        {activeSection === "devices" && <div className="devices-page">
           <Devices devices={data.devices} onAdded={(device) => setData(current => ({ ...current, devices: [...current.devices, device] }))} />
-        </div>
+        </div>}
       </main>
 
       <footer>
