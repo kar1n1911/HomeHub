@@ -100,7 +100,7 @@ The backend business interfaces use REST. PostgreSQL itself uses its database pr
 
 ### 2.3 REST interfaces and synchronous interactions
 
-Representative interfaces are shown below. The complete implementations are available in the corresponding service source files.
+Representative interfaces are shown below. The complete implementations can be inspected in the [service source directory](https://github.com/kar1n1911/HomeHub/tree/ba3f7cdfcd573c4691925dabf60afdfcb3464bfe/services).
 
 | Service | Method and endpoint | Function |
 |---|---|---|
@@ -115,7 +115,7 @@ Representative interfaces are shown below. The complete implementations are avai
 | Signal status | `GET /api/signals/stats` | Return queue and recent delivery information |
 | Receiver | `POST /internal/receive` | Persist an authenticated incoming signal |
 
-The React code uses `fetch` to send requests and interpret JSON responses. The FastAPI services implement the receiving routes, input validation, persistence and HTTP responses. The project therefore demonstrates both consuming and providing a REST API.
+The [React implementation](https://github.com/kar1n1911/HomeHub/blob/ba3f7cdfcd573c4691925dabf60afdfcb3464bfe/frontend/src/App.jsx) uses `fetch` to send requests and interpret JSON responses. The FastAPI services implement the receiving routes, input validation, persistence and HTTP responses. The project therefore demonstrates both consuming and providing a REST API.
 
 For a task change, the browser sends a request through Nginx to the Task Service. The service writes to its database and returns the saved representation. A transport failure during a write can leave the client uncertain whether the database committed the operation. The frontend consequently does not blindly repeat an uncertain creation request; it asks the user to refresh and inspect the stored state. This avoids treating every network failure as proof that nothing was saved.
 
@@ -179,7 +179,7 @@ Concurrent application initialization is controlled by transaction-level advisor
 
 ### 2.7 Deployment and operational readiness
 
-The supported entry point is:
+The [deployment script](https://github.com/kar1n1911/HomeHub/blob/ba3f7cdfcd573c4691925dabf60afdfcb3464bfe/scripts/deploy-k8s.sh) can be read online. To execute it, first download or clone the repository and open a terminal in its root directory. The supported entry point is:
 
 ```bash
 ./scripts/deploy-k8s.sh
@@ -293,21 +293,21 @@ The source code and published container images are available through the followi
 | Device API image | [kar1n1911/homehub-device — tags](https://hub.docker.com/r/kar1n1911/homehub-device/tags) | Release `0.2.0` |
 | Signal-processing image | [kar1n1911/homehub-alertmanager — tags](https://hub.docker.com/r/kar1n1911/homehub-alertmanager/tags) | Release `0.2.0`; shared by collector, worker, and receiver roles |
 
-Access was checked on 24 September 2026. The GitHub repository page was accessible without sign-in and identified the repository as public. The Docker Hub frontend tags page returned HTTP 200; anonymous Docker Hub API requests confirmed that all five image repositories were public and that the release tags listed above existed. These checks establish public repository access and tag availability; Kubernetes image-pull evidence is recorded separately in the project verification documents.
+The GitHub repository page was accessible without sign-in and identified the repository as public. Kubernetes image-pull evidence is recorded separately in the project verification documents.
 
 ## Project Evidence and Traceability
 
-The following repository files provide implementation and verification evidence for the three report deliverables. They are project records, not independent external evaluations.
+The following links open public GitHub file pages directly; no local checkout is needed to read them. Evidence links are pinned to commit `ba3f7cd` so that the referenced records remain stable as the project evolves. They are project records, not independent external evaluations.
 
-1. [Application overview and deployment](../../README.md).
-2. [Core architecture and database security](../architecture/architecture.md).
-3. [Device-signal processing and failure boundaries](../architecture/device-signals.md).
-4. [Frontend page implementation verification](../verification/frontend-pages.md).
-5. [Database recovery and credential-isolation test](../verification/database-ha.md).
-6. [Signal scaling test results](../verification/signal-scaling.json).
-7. [Cleanup and redeployment verification](../verification/cleanup-redeploy.md).
-8. [Data-preservation comparison](../verification/redeployment-data.json).
-9. [Published application image records](../verification/release-images.json).
-10. [Kubernetes deployment source](../../kubernetes/kustomization.yaml).
+1. [Application overview and deployment](https://github.com/kar1n1911/HomeHub/blob/ba3f7cdfcd573c4691925dabf60afdfcb3464bfe/README.md).
+2. [Core architecture and database security](https://github.com/kar1n1911/HomeHub/blob/ba3f7cdfcd573c4691925dabf60afdfcb3464bfe/docs/architecture/architecture.md).
+3. [Device-signal processing and failure boundaries](https://github.com/kar1n1911/HomeHub/blob/ba3f7cdfcd573c4691925dabf60afdfcb3464bfe/docs/architecture/device-signals.md).
+4. [Frontend page implementation verification](https://github.com/kar1n1911/HomeHub/blob/ba3f7cdfcd573c4691925dabf60afdfcb3464bfe/docs/verification/frontend-pages.md).
+5. [Database recovery and credential-isolation test](https://github.com/kar1n1911/HomeHub/blob/ba3f7cdfcd573c4691925dabf60afdfcb3464bfe/docs/verification/database-ha.md).
+6. [Signal scaling test results](https://github.com/kar1n1911/HomeHub/blob/ba3f7cdfcd573c4691925dabf60afdfcb3464bfe/docs/verification/signal-scaling.json).
+7. [Cleanup and redeployment verification](https://github.com/kar1n1911/HomeHub/blob/ba3f7cdfcd573c4691925dabf60afdfcb3464bfe/docs/verification/cleanup-redeploy.md).
+8. [Data-preservation comparison](https://github.com/kar1n1911/HomeHub/blob/ba3f7cdfcd573c4691925dabf60afdfcb3464bfe/docs/verification/redeployment-data.json).
+9. [Published application image records](https://github.com/kar1n1911/HomeHub/blob/ba3f7cdfcd573c4691925dabf60afdfcb3464bfe/docs/verification/release-images.json).
+10. [Kubernetes deployment source](https://github.com/kar1n1911/HomeHub/blob/ba3f7cdfcd573c4691925dabf60afdfcb3464bfe/kubernetes/kustomization.yaml).
 
 This report addresses the software description, architecture design, and benefits/challenges/security discussion. The public repository links above also support the repository submission requirement; the final recorded demonstration remains a separate submission item.
