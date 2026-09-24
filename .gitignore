@@ -15,3 +15,10 @@ frontend/dist/
 # Local browser verification artifacts
 .playwright-cli/
 output/playwright/
+
+# Local recording materials (scripts, exports, and footage)
+/docs/video/
+
+# Keep only the final report source; drafts and exports stay local
+/docs/report/*
+!/docs/report/HomeHub-Report.md

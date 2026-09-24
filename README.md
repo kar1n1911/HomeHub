@@ -204,7 +204,7 @@ This coursework version includes database-backed APIs, sample data, independent 
 - `tests/`: isolated database integration tests
 - `docs/architecture/`: design, security, tradeoffs, migration
 - `docs/verification/`: observed validation results
-- `docs/report/`, `docs/video/`: coursework deliverable outlines
+- `docs/report/HomeHub-Report.md`: final coursework report. Recording materials and report drafts/exports are kept locally and excluded from Git.
 
 ## Task walkthrough
 

@@ -3,7 +3,7 @@
 **Software description, architecture design, and evaluation**  
 **Project version:** Frontend 0.2.2; application APIs and signal services 0.2.0  
 **Deployment scope:** One OrbStack Kubernetes node  
-**Report date:** 22 September 2026
+**Report date:** 24 September 2026
 
 ## Abstract
 
