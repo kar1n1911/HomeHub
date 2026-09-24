@@ -279,6 +279,22 @@ HomeHub demonstrates a functioning microservice application with browser access,
 
 The result is a single-node coursework system with clearly stated limits. Its principal unfinished security measures are user-level access control, HTTPS, internal network restrictions and off-host backup. Its scaling behaviour remains constrained by one machine and a shared database cluster. The appropriate next steps are to improve operational assurance and close these gaps when required by the intended use, rather than to present the current demonstration as a production platform.
 
+## Public Source Code and Container Image Repositories
+
+The source code and published container images are available through the following public web repositories. Reviewers can inspect the source, deployment manifests, and image tags in a browser without installing Git or Docker.
+
+| Resource | Web location | Contents |
+|---|---|---|
+| GitHub repository | [github.com/kar1n1911/HomeHub](https://github.com/kar1n1911/HomeHub) | Application source, README, architecture, and verification records |
+| Kubernetes configuration | [HomeHub/kubernetes](https://github.com/kar1n1911/HomeHub/tree/main/kubernetes) | Deployments, Services, database storage, and scaling configuration |
+| Frontend image | [kar1n1911/homehub-frontend — tags](https://hub.docker.com/r/kar1n1911/homehub-frontend/tags) | Release `0.2.2` |
+| Household API image | [kar1n1911/homehub-household — tags](https://hub.docker.com/r/kar1n1911/homehub-household/tags) | Release `0.2.0` |
+| Task API image | [kar1n1911/homehub-task — tags](https://hub.docker.com/r/kar1n1911/homehub-task/tags) | Release `0.2.0` |
+| Device API image | [kar1n1911/homehub-device — tags](https://hub.docker.com/r/kar1n1911/homehub-device/tags) | Release `0.2.0` |
+| Signal-processing image | [kar1n1911/homehub-alertmanager — tags](https://hub.docker.com/r/kar1n1911/homehub-alertmanager/tags) | Release `0.2.0`; shared by collector, worker, and receiver roles |
+
+Access was checked on 24 September 2026. The GitHub repository page was accessible without sign-in and identified the repository as public. The Docker Hub frontend tags page returned HTTP 200; anonymous Docker Hub API requests confirmed that all five image repositories were public and that the release tags listed above existed. These checks establish public repository access and tag availability; Kubernetes image-pull evidence is recorded separately in the project verification documents.
+
 ## Project Evidence and Traceability
 
 The following repository files provide implementation and verification evidence for the three report deliverables. They are project records, not independent external evaluations.
@@ -294,4 +310,4 @@ The following repository files provide implementation and verification evidence 
 9. [Published application image records](../verification/release-images.json).
 10. [Kubernetes deployment source](../../kubernetes/kustomization.yaml).
 
-This report addresses the software description, architecture design, and benefits/challenges/security discussion. Repository-access arrangements and the final recorded demonstration are separate submission items.
+This report addresses the software description, architecture design, and benefits/challenges/security discussion. The public repository links above also support the repository submission requirement; the final recorded demonstration remains a separate submission item.
